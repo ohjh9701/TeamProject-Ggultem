@@ -27,38 +27,37 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
-	
+
 	private final ModelMapper modelMapper;
 	private final MemberRepository memberRepository;
 	private final CustomFileUtil fileUtil;
-	
+
 	@Override
 	public MemberDTO get(Long no) {
 		java.util.Optional<Member> result = memberRepository.findById(no);
 		Member member = result.orElseThrow();
-		
-		MemberDTO memberDTO = modelMapper.map(member, MemberDTO.class);
-		
-		List<String> fileNameList = member.getThumbnailList().stream()
-	            .map(thumbnail -> thumbnail.getFileName())
-	            .collect(Collectors.toList());
 
-	    if (fileNameList != null && !fileNameList.isEmpty()) {
-	    	memberDTO.setUploadFileNames(fileNameList);
-	    } else {
-	    	memberDTO.setUploadFileNames(List.of("default.jpg"));
-	    }
-		
+		MemberDTO memberDTO = modelMapper.map(member, MemberDTO.class);
+
+		List<String> fileNameList = member.getThumbnailList().stream().map(thumbnail -> thumbnail.getFileName())
+				.collect(Collectors.toList());
+
+		if (fileNameList != null && !fileNameList.isEmpty()) {
+			memberDTO.setUploadFileNames(fileNameList);
+		} else {
+			memberDTO.setUploadFileNames(List.of("default.jpg"));
+		}
+
 		return memberDTO;
 	}
 
 	@Override
 	public Long register(MemberDTO memberDTO) {
 		Member member = modelMapper.map(memberDTO, Member.class);
-		
+
 		member.changeStatus(1);
 		member.addRole("ROLE_MEMBER");
-		
+
 		Member savedMember = memberRepository.save(member);
 
 		return savedMember.getNo();
@@ -73,12 +72,13 @@ public class MemberServiceImpl implements MemberService {
 		member.changePhone(memberDTO.getPhone());
 		member.changeEmail(memberDTO.getEmail());
 		member.changeNickName(memberDTO.getNickName());
-		member.setEnabled(memberDTO.getEnabled());
 		
-	    if (member.getEnabled() != memberDTO.getEnabled()) {
-	        member.changeStatus(memberDTO.getEnabled());
+	    if (memberDTO.getEnabled() != null) {
+	        if (!member.getEnabled().equals(memberDTO.getEnabled())) {
+	            member.changeStatus(memberDTO.getEnabled());
+	        }
 	    }
-		
+
 		memberRepository.save(member);
 	}
 
@@ -86,9 +86,9 @@ public class MemberServiceImpl implements MemberService {
 	public void remove(Long no) {
 		Optional<Member> result = memberRepository.findById(no);
 		Member member = result.orElseThrow();
-		
+
 		member.changeStatus(0);
-		
+
 		memberRepository.save(member);
 	}
 
@@ -97,14 +97,29 @@ public class MemberServiceImpl implements MemberService {
 		Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, // 1 페이지가 0 이므로 주의
 				pageRequestDTO.getSize(), Sort.by("no").descending());
 		Page<Member> result = memberRepository.findAll(pageable);
-		List<MemberDTO> dtoList = result.getContent().stream().map(member -> modelMapper.map(member, MemberDTO.class))
-				.collect(Collectors.toList());
-		long totalCount = result.getTotalElements();
 		
-		PageResponseDTO<MemberDTO> responseDTO = PageResponseDTO.<MemberDTO>withAll().dtoList(dtoList)
-				.pageRequestDTO(pageRequestDTO).totalCount(totalCount).build();
-		
-		return responseDTO;
+		List<MemberDTO> dtoList = result.getContent().stream().map(member -> {
+	        MemberDTO dto = modelMapper.map(member, MemberDTO.class);
+
+	        List<String> fileNameList = member.getThumbnailList().stream()
+	                .map(thumbnail -> thumbnail.getFileName())
+	                .collect(Collectors.toList());
+
+	        if (fileNameList != null && !fileNameList.isEmpty()) {
+	            dto.setUploadFileNames(fileNameList);
+	        } else {
+	            dto.setUploadFileNames(List.of("default.jpg"));
+	        }
+
+	        return dto;
+	    }).collect(Collectors.toList());
+
+	long totalCount = result.getTotalElements();
+
+	PageResponseDTO<MemberDTO> responseDTO = PageResponseDTO.<MemberDTO>withAll().dtoList(dtoList)
+			.pageRequestDTO(pageRequestDTO).totalCount(totalCount).build();
+
+	return responseDTO;
 	}
 
 	@Override

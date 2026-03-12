@@ -18,6 +18,9 @@ import com.honey.util.CustomFileUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +34,18 @@ public class MypageController {
     @GetMapping("/{no}")
     public MemberDTO getMyInfo(@PathVariable(name = "no") Long no) {
         return service.get(no);
+    }
+    
+    @PutMapping("/{no}")
+    public Map<String, String> putMethodName(@PathVariable(name = "no") Long no, MemberDTO memberDTO) {
+        service.modify(memberDTO);
+    	return Map.of("RESULT", "SUCCESS");
+    }
+    
+    @PutMapping("delete/{no}")
+    public Map<String, String> putMethodName(@PathVariable(name = "no") Long no) {
+        service.remove(no);
+        return Map.of("RESULT", "SUCCESS");
     }
 
     @PostMapping("/thumbnail/{no}")
