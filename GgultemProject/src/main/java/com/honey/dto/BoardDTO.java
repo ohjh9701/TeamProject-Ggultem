@@ -14,10 +14,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder // Builder 패턴 객체 생성
-@AllArgsConstructor // 매개변수 자동 생성
-@NoArgsConstructor // 매개변수 없는 기본 생성
-
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class BoardDTO {
 
 	private Integer boardNo;
