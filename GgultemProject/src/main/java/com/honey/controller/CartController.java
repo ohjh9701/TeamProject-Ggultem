@@ -37,8 +37,8 @@ public class CartController {
 	}
 	
 	@GetMapping("/list")
-	public PageResponseDTO<CartDTO> list(SearchDTO searchDTO, String memberEmail){
-		return cartService.list(searchDTO, memberEmail);
+	public PageResponseDTO<CartDTO> list(SearchDTO searchDTO, String email){
+		return cartService.list(searchDTO, email);
 	}
 	
 	@GetMapping("/delete/{id}")

@@ -12,12 +12,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.honey.domain.ItemBoard;
-import com.honey.domain.Member;
 import com.honey.dto.ItemBoardDTO;
+import com.honey.dto.PageRequestDTO;
 import com.honey.dto.PageResponseDTO;
 import com.honey.dto.SearchDTO;
 import com.honey.repository.ItemBoardRepository;
-import com.honey.repository.MemberRepository;
+import com.honey.util.CustomFileUtil;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class ItemBoardServiceImpl implements ItemBoardService {
 
 	private final ModelMapper modelMapper;
 	private final ItemBoardRepository itemBoardRepository;
-	private final MemberRepository memberRepository;
+	private final CustomFileUtil fileUtil;
 
 	@Override
 	public ItemBoardDTO get(Long id) {
@@ -64,14 +64,10 @@ public class ItemBoardServiceImpl implements ItemBoardService {
 	}
 
 	private ItemBoard dtoToEntity(ItemBoardDTO itemBoardDTO) {
-		Member member = memberRepository.findById(itemBoardDTO.getMemberEmail()).orElseThrow();
-		
-		
 		ItemBoard itemBoard = ItemBoard.builder().title(itemBoardDTO.getTitle()).writer(itemBoardDTO.getWriter())
 				.price(itemBoardDTO.getPrice()).content(itemBoardDTO.getContent()).category(itemBoardDTO.getCategory())
 				.location(itemBoardDTO.getLocation()).itemUrl(itemBoardDTO.getItemUrl())
-				.member(member)
-				.enabled(0).status("판매중").build();
+				.pictureUrl(itemBoardDTO.getPictureUrl()).enabled(0).status("판매중").build();
 		// 업로드 처리가 끝난 파일들의 이름 리스트
 		List<String> uploadFileNames = itemBoardDTO.getUploadFileNames();
 		if (uploadFileNames == null) {
@@ -80,7 +76,6 @@ public class ItemBoardServiceImpl implements ItemBoardService {
 		uploadFileNames.stream().forEach(uploadName -> {
 			itemBoard.addImageString(uploadName);
 		});
-		itemBoard.changePictureUrl(uploadFileNames.get(0));
 
 		return itemBoard;
 	}
