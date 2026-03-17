@@ -65,22 +65,33 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Override
 	public Long register(NoticeDTO noticeDTO) {
-		Member member = Member.builder().no(noticeDTO.getMemberNo()).build();
+	    
+	    // 1. [파일 처리] 컨트롤러에서 하던 걸 여기서 수행 (파일명 리스트 확보)
+	    List<String> uploadFileNames = fileUtil.saveFiles(noticeDTO.getFiles());
+	    
+	    // 2. [작성자 매핑] 빌더를 이용해 이메일만 담긴 Member 객체 생성
+	    Member member = Member.builder()
+	            .email(noticeDTO.getMemberEmail())
+	            .build();
 
-		Notice notice = Notice.builder().title(noticeDTO.getTitle()).content(noticeDTO.getContent()).viewCount(0)
-				.member(member).build();
+	    // 3. [엔티티 빌드] 공지사항 객체 생성
+	    Notice notice = Notice.builder()
+	            .title(noticeDTO.getTitle())
+	            .content(noticeDTO.getContent())
+	            .viewCount(0)
+	            .member(member) // 가짜 객체지만 FK 저장에는 충분!
+	            .enabled(1)     // 활성화 상태로 등록
+	            .build();
 
-		// 이미지 추가 로직 (DTO의 파일명을 Entity로)
-		if (noticeDTO.getUploadFileNames() != null) {
-			noticeDTO.getUploadFileNames().forEach(fileName -> {
-				notice.addImageString(fileName);
-			});
-		}
+	    // 4. [이미지 연결] 저장된 파일명들을 엔티티의 리스트에 추가
+	    if (uploadFileNames != null && !uploadFileNames.isEmpty()) {
+	        uploadFileNames.forEach(fileName -> {
+	            notice.addImageString(fileName);
+	        });
+	    }
 
-		// 기본 상태 활성화
-		notice.changeStatus(1);
-
-		return noticeRepository.save(notice).getNoticeId();
+	    // 5. [저장 및 반환]
+	    return noticeRepository.save(notice).getNoticeId();
 	}
 
 	@Override
@@ -177,7 +188,7 @@ public class NoticeServiceImpl implements NoticeService {
 			// 작성자 이름 세팅 (Member 객체에서 추출)
 			if (notice.getMember() != null) {
 			    // 닉네임 필드가 nickname이라면 getNickname()으로!
-			    dto.setWriter(notice.getMember().getNickName()); 
+			    dto.setWriter(notice.getMember().getNickname()); 
 			}
 
 			return dto;
