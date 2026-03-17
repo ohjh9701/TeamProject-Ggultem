@@ -13,11 +13,9 @@ import org.springframework.stereotype.Service;
 
 import com.honey.domain.ItemBoard;
 import com.honey.dto.ItemBoardDTO;
-import com.honey.dto.PageRequestDTO;
 import com.honey.dto.PageResponseDTO;
 import com.honey.dto.SearchDTO;
 import com.honey.repository.ItemBoardRepository;
-import com.honey.util.CustomFileUtil;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +29,6 @@ public class ItemBoardServiceImpl implements ItemBoardService {
 
 	private final ModelMapper modelMapper;
 	private final ItemBoardRepository itemBoardRepository;
-	private final CustomFileUtil fileUtil;
 
 	@Override
 	public ItemBoardDTO get(Long id) {
