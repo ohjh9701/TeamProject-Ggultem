@@ -23,12 +23,12 @@ import lombok.extern.log4j.Log4j2;
 @RequestMapping("/board")
 public class BoardController {
 
-	private final BoardService boardService;
+	private final BoardService service;
 
 	// 게시글 조회
 	@GetMapping("/{boardNo}")
 	public BoardDTO getBoard(@PathVariable(name = "boardNo") Integer boardNo) {
-		return boardService.get(boardNo);
+		return service.get(boardNo);
 	}
 
 	// 게시글 등록
@@ -37,7 +37,7 @@ public class BoardController {
 
 		log.info("Board register: " + boardDTO);
 
-		Integer boardNo = boardService.register(boardDTO);
+		Integer boardNo = service.register(boardDTO);
 
 		return Map.of("BOARD_NO", boardNo);
 	}
@@ -46,7 +46,7 @@ public class BoardController {
 	@GetMapping("/list")
 	public PageResponseDTO<BoardDTO> list(SearchDTO searchDTO) {
 		log.info(searchDTO);
-		return boardService.list(searchDTO);
+		return service.list(searchDTO);
 	}
 
 	// 게시글 수정
@@ -55,7 +55,7 @@ public class BoardController {
 
 		boardDTO.setBoardNo(boardNo);
 
-		boardService.modify(boardDTO);
+		service.modify(boardDTO);
 
 		return Map.of("RESULT", "SUCCESS");
 	}
@@ -63,7 +63,7 @@ public class BoardController {
 	// 게시글 삭제
 	@GetMapping("/delete/{boardNo}")
 	public Map<String, String> remove(@PathVariable(name = "boardNo") Integer boardNo) {
-		boardService.remove(boardNo);
+		service.remove(boardNo);
 
 		return Map.of("RESULT", "SUCCESS");
 	}

@@ -1,14 +1,12 @@
 package com.honey.service;
 
 import com.honey.dto.BoardDTO;
+import com.honey.dto.PageRequestDTO;
 import com.honey.dto.PageResponseDTO;
 import com.honey.dto.SearchDTO;
 
-public interface BoardService {
 
-	// =========================
-	// 일반 사용자
-	// =========================
+public interface BoardService {
 
 	// 게시글 등록
 	Integer register(BoardDTO boardDTO);
@@ -24,15 +22,5 @@ public interface BoardService {
 
 	// 게시글 목록
 	PageResponseDTO<BoardDTO> list(SearchDTO searchDTO);
-
-	// =========================
-	// 관리자
-	// =========================
-
-	// 관지자 전용 게시판목록
-	PageResponseDTO<BoardDTO> adminList(SearchDTO searchDTO);
-
-	// 관리자 삭제 (권한 무시)
-	void adminRemove(Integer boardNo);
-
+	
 }

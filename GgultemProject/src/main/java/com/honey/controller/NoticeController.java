@@ -37,9 +37,15 @@ public class NoticeController {
 	}
 	
 	@PostMapping("/")
-	public Map<String, Long> register(NoticeDTO noticeDTO) {
-	    Long noticeId = service.register(noticeDTO);
-	    return Map.of("noticeId", noticeId);
+	public Map<String, Long> register(NoticeDTO noticeDTO){
+		
+		List<MultipartFile> files = noticeDTO.getFiles();
+        List<String> uploadFileNames = fileUtil.saveFiles(files);
+        
+		noticeDTO.setUploadFileNames(uploadFileNames);
+		
+		Long noticeId = service.register(noticeDTO);
+		return Map.of("NO", noticeId);
 	}
 	
 	@GetMapping("/list")
@@ -67,3 +73,4 @@ public class NoticeController {
 	}
 	
 }
+

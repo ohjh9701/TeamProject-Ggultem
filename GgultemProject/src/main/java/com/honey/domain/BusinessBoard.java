@@ -9,12 +9,9 @@ import com.honey.common.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -30,7 +27,7 @@ sequenceName = "BUSINESS_BOARD_SEQ",
 initialValue = 1,
 allocationSize = 1)
 @Getter
-@ToString(exclude = {"writer", "bItemList"})
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -50,10 +47,7 @@ public class BusinessBoard extends BaseTimeEntity {
 	@Column(nullable = false)
 	private String content;
 	
-	@ManyToOne(fetch = FetchType.LAZY) // 지연 로딩 권장
-    @JoinColumn(name = "MEMBER_EMAIL") // DB 컬럼명
-    private Member writer;
-	
+	private String writer;
 	private LocalDateTime dtdDate;
 	private LocalDateTime endDate;
 	private int enabled;
@@ -75,8 +69,8 @@ public class BusinessBoard extends BaseTimeEntity {
 	public void changeCategory(String category) {
 		this.category = category;
 	}
-	public void setWriter(Member member) {
-		this.writer = member;
+	public void setWriter(String businessMemberId) {
+		this.writer = businessMemberId;
 	}
 	public void changeEnabled(int enabled) {
 		this.enabled = enabled;
