@@ -19,6 +19,9 @@ public interface BoardReplyService {
     // 댓글 삭제
     void remove(Long no);
 
+	List<BoardReplyDTO> adminList();
+
+
 
     
 }

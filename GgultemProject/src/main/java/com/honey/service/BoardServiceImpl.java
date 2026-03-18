@@ -35,13 +35,17 @@ public class BoardServiceImpl implements BoardService {
 	private final BoardRepository boardRepository;
 	private final MemberRepository memberRepository;
 
+	// =========================
+	// 일반 사용자
+	// =========================
+
 	// 게시글 등록
 	@Override
 	public Integer register(BoardDTO boardDTO) {
 
 		Member member = memberRepository.findById(boardDTO.getEmail()).orElseThrow();
 
-		Board board = Board.builder().title(boardDTO.getTitle()).writer(member.getNickname()) //  프론트 값 안 믿고 서버에서 설정
+		Board board = Board.builder().title(boardDTO.getTitle()).writer(member.getNickname()) // 프론트 값 안 믿고 서버에서 설정
 				.content(boardDTO.getContent()).viewCount(0).enabled(1).member(member).build();
 
 		List<String> uploadFileNames = fileUtil.saveFiles(boardDTO.getFiles());
@@ -97,7 +101,7 @@ public class BoardServiceImpl implements BoardService {
 
 		boardRepository.save(board);
 
-		//  삭제 파일 처리
+		// 삭제 파일 처리
 		List<String> removeFiles = oldFileNames.stream().filter(fileName -> !uploadedFileNames.contains(fileName))
 				.toList();
 
@@ -136,7 +140,6 @@ public class BoardServiceImpl implements BoardService {
 
 		} else {
 
-			
 			result = boardRepository.findAllActive(pageable);
 		}
 
@@ -156,4 +159,52 @@ public class BoardServiceImpl implements BoardService {
 				.totalCount(result.getTotalElements()).build();
 	}
 	
+
+	// =========================
+	// 관리자
+	// =========================
+
+	@Override
+	public PageResponseDTO<BoardDTO> adminList(SearchDTO searchDTO) {
+
+		Pageable pageable = PageRequest.of(searchDTO.getPage() - 1, searchDTO.getSize(),
+				Sort.by("boardNo").descending());
+
+		Page<Board> result;
+
+		if (searchDTO.getKeyword() != null && !searchDTO.getKeyword().isEmpty()) {
+
+			//  관리자 검색 (삭제 포함)
+			result = boardRepository.searchByConditionAdmin(searchDTO.getSearchType(), searchDTO.getKeyword(),
+					pageable);
+
+		} else {
+			//  전체 조회
+			result = boardRepository.findAll(pageable);
+		}
+
+		List<BoardDTO> dtoList = result.getContent().stream().map(board -> {
+
+			BoardDTO dto = modelMapper.map(board, BoardDTO.class);
+
+			List<String> fileNames = board.getBoardImage().stream().map(img -> img.getFileName()).toList();
+
+			dto.setUploadFileNames(fileNames);
+
+			return dto;
+
+		}).toList();
+
+		return PageResponseDTO.<BoardDTO>withAll().dtoList(dtoList).pageRequestDTO(searchDTO)
+				.totalCount(result.getTotalElements()).build();
+	}
+
+	@Override
+	public void adminRemove(Integer boardNo) {
+		Board board = boardRepository.findById(boardNo).orElseThrow();
+
+		// 관리자 삭제
+		board.changeEnabled(0);
+	}
+
 }
