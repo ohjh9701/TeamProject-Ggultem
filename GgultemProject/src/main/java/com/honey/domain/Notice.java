@@ -46,9 +46,9 @@ public class Notice extends BaseTimeEntity {
     @Column(length = 3000, nullable = false)
     private String content;
 
-    // Member 엔티티의 'no' 컬럼을 참조하는 외래키 설정
+    // Member 엔티티의 'member_email' 컬럼을 참조하는 외래키 설정
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MEMBER_NO", nullable = false)
+    @JoinColumn(name = "member_email", nullable = false)
     private Member member;
 
     @Column(nullable = false)
