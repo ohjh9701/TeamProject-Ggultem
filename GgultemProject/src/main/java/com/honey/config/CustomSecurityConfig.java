@@ -112,6 +112,7 @@ public class CustomSecurityConfig {
                         .build();
                 admin.addRole(MemberRole.MEMBER);
                 admin.addRole(MemberRole.ADMIN);
+                admin.changeStatus(1);
                 
                 // ✅ 기본 썸네일 파일명을 리스트에 명시적으로 추가
                 admin.addImageString("default.jpg");
