@@ -230,11 +230,13 @@ public class MemberServiceImpl implements MemberService {
             // 이미 가입된 회원이면 바로 DTO 변환 (로그인 처리)
             return entityToDTO(result.get());
         }
+        
+        String tempPassword = makeTempPassword();
 
         // 4. 없는 회원이면 자동 회원가입 진행
         Member member = Member.builder()
                 .email(email)
-                .pw(passwordEncoder.encode("1111")) // 소셜용 임시 비번
+                .pw(passwordEncoder.encode(tempPassword)) // 소셜용 임시 비번
                 .nickname("KakaoUser_" + email.substring(6).split("@")[0])
                 .social(true)
                 .build();
@@ -282,6 +284,14 @@ public class MemberServiceImpl implements MemberService {
             return null;
         }
     }
+    
+    private String makeTempPassword() { 
+    	StringBuffer buffer = new StringBuffer();  
+    	for (int i = 0; i < 10; i++) { 
+    	buffer.append((char) ((int) (Math.random() * 55) + 65)); 
+    	} 
+    	return buffer.toString(); 
+    	} 
 
     // ⭐️ 여기에 entityToDTO를 직접 만드시면 됩니다!
     private MemberDTO entityToDTO(Member member) {
@@ -324,17 +334,12 @@ public class MemberServiceImpl implements MemberService {
             
             // ✅ 닉네임 추출 (properties 안에 있습니다)
             // 만약 이것도 없으면 "Guest"로 대체하도록 안전하게 작성
-            JsonNode properties = jsonNode.get("properties");
-            String nickname = (properties != null && properties.get("nickname") != null) 
-                              ? properties.get("nickname").asText() 
-                              : "User";
-
-            // ✅ 이메일 대신 사용할 고유 식별자 생성
-            // 공백 제거를 위해 replaceAll 사용
-            String fakeEmail = "kakao_" + id + "@kakao.com";
+            JsonNode kakaoAccount = jsonNode.get("kakao_account");
+            String email = (kakaoAccount != null && kakaoAccount.get("email") != null) 
+                              ? "kakao_" + kakaoAccount.get("email").asText() 
+                              : "kakao_" + id + "@kakao.com";
             
-            log.info("--- 생성된 식별용 이메일: " + fakeEmail);
-            return fakeEmail;
+            return email;
             
         } catch (Exception e) {
             log.error("--- 카카오 데이터 파싱 중 치명적 에러: " + e.getMessage());
