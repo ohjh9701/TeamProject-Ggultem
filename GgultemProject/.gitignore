@@ -33,4 +33,4 @@ build/
 .vscode/
 
 # 보안용 설정 파일 제외
-src/main/resources/secrets.properties
+!**/src/main/resources/secrets.properties
