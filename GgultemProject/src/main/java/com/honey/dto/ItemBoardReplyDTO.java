@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class ItemBoardReplyDTO {
 
 	private Long replyNo;
-	private Long id;
+	private Long itemId;
 	private String email;
 	private String content;
 	private Long parentReplyNo;
@@ -28,8 +29,11 @@ public class ItemBoardReplyDTO {
 	
 	private int enabled;
 	
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime regDate;
+	
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime updDate;
 }

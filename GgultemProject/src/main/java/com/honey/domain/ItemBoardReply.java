@@ -54,7 +54,7 @@ public class ItemBoardReply {
 	@JoinColumn(nullable = false)
 	private String content;
 	
-	private int enabled;
+	private Integer enabled;
 	
 	
 	public void changeEnabled(int enabled) {

@@ -6,7 +6,7 @@ import com.honey.dto.ItemBoardReplyDTO;
 
 public interface ItemBoardReplyService {
 
-	public List<ItemBoardReplyDTO> list(Long id);
+	public List<ItemBoardReplyDTO> list(Long itemId);
 
 	public Long register(ItemBoardReplyDTO dto);
 

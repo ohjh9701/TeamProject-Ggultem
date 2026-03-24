@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,18 +22,18 @@ public class ItemBoardReplyController {
 
 	private final ItemBoardReplyService service;
 	
-	@GetMapping("/list/{id}")
-	public List<ItemBoardReplyDTO> list(@PathVariable Long id){
-		return service.list(id);
+	@GetMapping("/list/{itemId}")
+	public List<ItemBoardReplyDTO> list(@PathVariable Long itemId){
+		return service.list(itemId);
 	}
 	
 	@PostMapping("/")
-	public Long register(ItemBoardReplyDTO dto) {
+	public Long register(@RequestBody ItemBoardReplyDTO dto) {
 		return service.register(dto);
 	}
 	
 	@PutMapping("/{replyNo}")
-	public void modify(@PathVariable Long replyNo, ItemBoardReplyDTO dto) {
+	public void modify(@PathVariable Long replyNo, @RequestBody ItemBoardReplyDTO dto) {
 		dto.setReplyNo(replyNo);
 		
 		service.modify(dto);

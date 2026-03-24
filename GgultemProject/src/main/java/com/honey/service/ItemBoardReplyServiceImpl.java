@@ -26,17 +26,18 @@ public class ItemBoardReplyServiceImpl implements ItemBoardReplyService {
 	private final ItemBoardReplyRepository itemBoardReplyRepository;
 	private final ItemBoardRepository itemBoardRepository;
 	private final MemberRepository memberRepository;
-	
-	@Override
-	public List<ItemBoardReplyDTO> list(Long id) {
 
-		List<ItemBoardReply> replyList = itemBoardReplyRepository.getRepliesByItem(id);
+	@Override
+	public List<ItemBoardReplyDTO> list(Long itemId) {
+
+		List<ItemBoardReply> replyList = itemBoardReplyRepository.getRepliesByItem(itemId);
 
 		Map<Long, ItemBoardReplyDTO> dtoMap = replyList.stream()
-				.map(reply -> ItemBoardReplyDTO.builder().replyNo(reply.getReplyNo()).id(reply.getItemBoard().getId())
-						.email(reply.getMember().getEmail()).content(reply.getContent())
-						.parentReplyNo(reply.getParent() != null ? reply.getParent().getReplyNo() : null)
-						.enabled(1).build())
+				.map(reply -> ItemBoardReplyDTO.builder().replyNo(reply.getReplyNo())
+						.itemId(reply.getItemBoard().getId()).email(reply.getMember().getEmail())
+						.content(reply.getContent())
+						.parentReplyNo(reply.getParent() != null ? reply.getParent().getReplyNo() : null).enabled(1)
+						.build())
 				.collect(Collectors.toMap(ItemBoardReplyDTO::getReplyNo, dto -> dto));
 
 		List<ItemBoardReplyDTO> result = new ArrayList<>();
@@ -58,18 +59,23 @@ public class ItemBoardReplyServiceImpl implements ItemBoardReplyService {
 
 	@Override
 	public Long register(ItemBoardReplyDTO dto) {
-		ItemBoard itemBoard = itemBoardRepository.findById(dto.getId()).orElseThrow();
-		
-		Member member = memberRepository.findById(dto.getEmail()).orElseThrow();
-		
+		ItemBoard itemBoard = itemBoardRepository.findById(dto.getItemId())
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다: " + dto.getItemId()));
+
+		Member member = memberRepository.findById(dto.getEmail())
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다: " + dto.getEmail()));
+
 		ItemBoardReply parentReply = null;
-		if(dto.getParentReplyNo() != null) {
-			parentReply = itemBoardReplyRepository.findById(dto.getParentReplyNo()).orElseThrow();
+		if (dto.getParentReplyNo() != null && dto.getParentReplyNo() > 0) {
+			parentReply = itemBoardReplyRepository.findById(dto.getParentReplyNo())
+					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부모 댓글입니다: " + dto.getParentReplyNo()));
 		}
+
 		ItemBoardReply reply = ItemBoardReply.builder().itemBoard(itemBoard).member(member).content(dto.getContent())
 				.parent(parentReply).enabled(1).build();
+
 		itemBoardReplyRepository.save(reply);
-		
+
 		return reply.getReplyNo();
 	}
 
