@@ -65,6 +65,20 @@ public class BusinessMemberController {
 	    return ResponseEntity.ok(Map.of("isValid", isValid));
 	}
 	
+	@GetMapping("/approve/{email}")
+	public Map<String, String> approve(@PathVariable(name = "email") String email) {
+		businessService.approve(email);
+		
+		return Map.of("RESULT", "SUCCESS");
+	}
+	
+	@GetMapping("/reject/{email}")
+	public Map<String, String> reject(@PathVariable(name = "email") String email) {
+		businessService.reject(email);
+		
+		return Map.of("RESULT", "SUCCESS");
+	}
+	
 	@GetMapping("/list")
 	public PageResponseDTO<MemberDTO> list(SearchDTO searchDTO) {
 		return businessService.list(searchDTO);

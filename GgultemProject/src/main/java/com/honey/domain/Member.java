@@ -68,12 +68,16 @@ public class Member extends BaseTimeEntity {
 	@Builder.Default
 	private List<MemberThumbnail> thumbnailList = new ArrayList<>();
 	
-	public void upgradeToBusiness(String businessNumber, String companyName) {
-        this.businessNumber = businessNumber;
-        this.companyName = companyName;
+	public void upgradeToBusiness() {
         this.businessVerified = true;
         this.addRole(MemberRole.BUSINESS); // 권한도 즉시 추가
     }
+	
+	public void downgradeToBusiness() {
+		this.businessVerified = false;
+		clearRole();
+        this.addRole(MemberRole.USER); // 권한 삭제 후 기본 권한 부여
+	}
 	
 	public void chargeBizMoney(int amount) {
 	    this.bizMoney += amount;
@@ -143,5 +147,7 @@ public class Member extends BaseTimeEntity {
 	public void clearList() {
 		this.thumbnailList.clear();
 	}
+
+	
 
 }

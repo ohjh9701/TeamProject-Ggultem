@@ -41,13 +41,6 @@ public class MemberController {
 		return memberDTO.getClaims();
 	}
 
-//	@PostMapping("/")
-//	public Map<String, String> register(MemberDTO memberDTO) {
-//		log.info("여기입니다 =-==================="+memberDTO.toString());
-//		String email = service.register(memberDTO);
-//		return Map.of("EAMIL", email);
-//	}
-
 	@PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, String>> register(
 	        @RequestParam("email") String email, 

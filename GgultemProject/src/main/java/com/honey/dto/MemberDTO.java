@@ -90,6 +90,8 @@ public class MemberDTO extends User {
 		dataMap.put("regDate", regDate); 
 		dataMap.put("bizMoney", bizMoney);
         dataMap.put("businessNumber", businessNumber);
+        dataMap.put("companyName", companyName);
+        dataMap.put("businessVerified", businessVerified);
         dataMap.put("enabled", enabled);
         dataMap.put("uploadFileNames", uploadFileNames);
         dataMap.put("phone", phone);

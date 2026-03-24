@@ -98,7 +98,7 @@ public class BusinessMemberServiceImpl implements BusinessMemberService {
 			dto.setBusinessNumber(member.getBusinessNumber());
 			dto.setCompanyName(member.getCompanyName());
 			dto.setBizMoney(member.getBizMoney());
-			dto.setBusinessVerified(false);
+			dto.setBusinessVerified(member.isBusinessVerified());
 			return dto; // 반드시 DTO를 리턴해야 합니다!
 	    }).collect(Collectors.toList());
 		
@@ -157,14 +157,21 @@ public class BusinessMemberServiceImpl implements BusinessMemberService {
 	}
 
 	@Override
-	public void approve(BusinessMemberDTO bMemberDTO) {
-		//Optional<BusinessMember> result = bMemberRepository.findById(bMemberDTO.getNo());
-//		BusinessMember bMember = result.orElseThrow();
-//		
-//		bMember.changeStatus(1);
-//		bMember.addRole("ROLE_BUSINESS_MEMBER");
+	public void approve(String email) {
+		Member member = memberRepository.findById(email).orElseThrow(() -> new RuntimeException("해당 회원을 찾을 수 없습니다."));		
 		
-		//bMemberRepository.save(bMember);
+		member.upgradeToBusiness();
+		
+		bMemberRepository.save(member);
+	}
+	
+	@Override
+	public void reject(String email) {
+		Member member = memberRepository.findById(email).orElseThrow(() -> new RuntimeException("해당 회원을 찾을 수 없습니다."));		
+		
+		member.downgradeToBusiness();
+		
+		bMemberRepository.save(member);
 	}
 
 	@Override
