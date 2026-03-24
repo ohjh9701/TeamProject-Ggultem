@@ -1,6 +1,5 @@
 package com.honey.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,6 @@ import com.honey.dto.PageResponseDTO;
 import com.honey.dto.SearchDTO;
 import com.honey.repository.BoardRepository;
 import com.honey.repository.MemberRepository;
-import com.honey.util.CustomFileUtil;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,33 +29,32 @@ import lombok.extern.slf4j.Slf4j;
 public class BoardServiceImpl implements BoardService {
 
 	private final ModelMapper modelMapper;
-	private final CustomFileUtil fileUtil;
 	private final BoardRepository boardRepository;
 	private final MemberRepository memberRepository;
 
 	// =========================
-	// 일반 사용자
-	// =========================
-
 	// 게시글 등록
+	// =========================
 	@Override
 	public Integer register(BoardDTO boardDTO) {
 
 		Member member = memberRepository.findById(boardDTO.getEmail()).orElseThrow();
 
-		Board board = Board.builder().title(boardDTO.getTitle()).writer(member.getNickname()) // 프론트 값 안 믿고 서버에서 설정
+		Board board = Board.builder().title(boardDTO.getTitle()).writer(member.getNickname())
 				.content(boardDTO.getContent()).viewCount(0).enabled(1).member(member).build();
-
-		List<String> uploadFileNames = fileUtil.saveFiles(boardDTO.getFiles());
-
-		if (uploadFileNames != null) {
-			uploadFileNames.forEach(board::addImageString);
-		}
-
+		/*
+		 * // Controller에서 전달받은 파일명 사용 List<String> uploadFileNames =
+		 * boardDTO.getUploadFileNames();
+		 * 
+		 * if (uploadFileNames != null) {
+		 * uploadFileNames.forEach(board::addImageString); }
+		 */
 		return boardRepository.save(board).getBoardNo();
 	}
 
+	// =========================
 	// 게시글 조회
+	// =========================
 	@Override
 	public BoardDTO get(Integer boardNo) {
 
@@ -74,58 +71,46 @@ public class BoardServiceImpl implements BoardService {
 		return boardDTO;
 	}
 
+	// =========================
 	// 게시글 수정
+	// =========================
 	@Override
 	public void modify(BoardDTO boardDTO) {
 
-		Board board = boardRepository.findById(boardDTO.getBoardNo()).orElseThrow();
+	    Board board = boardRepository.findById(boardDTO.getBoardNo())
+	            .orElseThrow();
 
-		board.changeTitle(boardDTO.getTitle());
-		board.changeWriter(boardDTO.getWriter());
+	    //  제목 (null 방어)
+	    if (boardDTO.getTitle() != null && !boardDTO.getTitle().isEmpty()) {
+	        board.changeTitle(boardDTO.getTitle());
+	    }
 
-		List<String> oldFileNames = board.getBoardImage().stream().map(img -> img.getFileName()).toList();
+	    //  내용 
+	    if (boardDTO.getContent() != null && !boardDTO.getContent().isEmpty()) {
+	        board.setContent(boardDTO.getContent());
+	    }
 
-		List<String> newUploadFileNames = fileUtil.saveFiles(boardDTO.getFiles());
+	   
 
-		List<String> uploadedFileNames = boardDTO.getUploadFileNames() != null
-				? new ArrayList<>(boardDTO.getUploadFileNames())
-				: new ArrayList<>();
-
-		if (newUploadFileNames != null) {
-			uploadedFileNames.addAll(newUploadFileNames);
-		}
-
-		board.clearList();
-
-		uploadedFileNames.forEach(board::addImageString);
-
-		boardRepository.save(board);
-
-		// 삭제 파일 처리
-		List<String> removeFiles = oldFileNames.stream().filter(fileName -> !uploadedFileNames.contains(fileName))
-				.toList();
-
-		fileUtil.deleteFiles(removeFiles);
+	    boardRepository.save(board);
 	}
 
-	// 게시글 삭제 (논리삭제 + 파일삭제)
+	// =========================
+	// 게시글 삭제 (논리삭제)
+	// =========================
 	@Override
 	public void remove(Integer boardNo) {
 
 		Board board = boardRepository.findById(boardNo).orElseThrow();
-
-		List<String> fileNames = board.getBoardImage().stream().map(img -> img.getFileName()).toList();
-
-		if (!fileNames.isEmpty()) {
-			fileUtil.deleteFiles(fileNames);
-		}
 
 		board.changeEnabled(0);
 
 		boardRepository.save(board);
 	}
 
+	// =========================
 	// 게시글 목록
+	// =========================
 	@Override
 	public PageResponseDTO<BoardDTO> list(SearchDTO searchDTO) {
 
@@ -158,12 +143,10 @@ public class BoardServiceImpl implements BoardService {
 		return PageResponseDTO.<BoardDTO>withAll().dtoList(dtoList).pageRequestDTO(searchDTO)
 				.totalCount(result.getTotalElements()).build();
 	}
-	
 
 	// =========================
 	// 관리자
 	// =========================
-
 	@Override
 	public PageResponseDTO<BoardDTO> adminList(SearchDTO searchDTO) {
 
@@ -174,12 +157,11 @@ public class BoardServiceImpl implements BoardService {
 
 		if (searchDTO.getKeyword() != null && !searchDTO.getKeyword().isEmpty()) {
 
-			//  관리자 검색 (삭제 포함)
 			result = boardRepository.searchByConditionAdmin(searchDTO.getSearchType(), searchDTO.getKeyword(),
 					pageable);
 
 		} else {
-			//  전체 조회
+
 			result = boardRepository.findAll(pageable);
 		}
 
@@ -202,9 +184,6 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public void adminRemove(Integer boardNo) {
 		Board board = boardRepository.findById(boardNo).orElseThrow();
-
-		// 관리자 삭제
 		board.changeEnabled(0);
 	}
-
 }

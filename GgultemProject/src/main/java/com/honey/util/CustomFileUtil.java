@@ -26,19 +26,19 @@ import net.coobird.thumbnailator.Thumbnails;
 @Log4j2
 @RequiredArgsConstructor
 public class CustomFileUtil {
-	
+
 	@Value("${com.honey.upload.path}")
 	private String uploadPath;
-	
+
 	@PostConstruct
 	public void init() {
 		File tempFolder = new File(uploadPath);
-		
-		if(tempFolder.exists() == false) {
-			tempFolder.mkdir();
+
+		if (tempFolder.exists() == false) {
+			tempFolder.mkdirs();
 		}
 	}
-	
+
 	public List<String> saveFiles(List<MultipartFile> files) throws RuntimeException {
 		if (files == null || files.isEmpty()) {
 			return null;
@@ -53,10 +53,10 @@ public class CustomFileUtil {
 			try {
 				Files.copy(multipartFile.getInputStream(), savePath);
 				String contentType = multipartFile.getContentType();
-				if (contentType != null && contentType.startsWith("image")){ 
-					Path thumbnailPath = Paths.get(uploadPath,"s_"+savedName);
-					Thumbnails.of(savePath.toFile()).size(250,250).toFile(thumbnailPath.toFile()); 
-				} 
+				if (contentType != null && contentType.startsWith("image")) {
+					Path thumbnailPath = Paths.get(uploadPath, "s_" + savedName);
+					Thumbnails.of(savePath.toFile()).size(250, 250).toFile(thumbnailPath.toFile());
+				}
 				uploadNames.add(savedName);
 			} catch (IOException e) {
 				throw new RuntimeException("File save error: " + e.getMessage());
@@ -64,7 +64,7 @@ public class CustomFileUtil {
 		}
 		return uploadNames;
 	}
-	
+
 	public ResponseEntity<Resource> getFile(String fileName) {
 		Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
 		if (!resource.exists()) {
@@ -79,7 +79,7 @@ public class CustomFileUtil {
 
 		return ResponseEntity.ok().headers(headers).body(resource);
 	}
-	
+
 	public void deleteFiles(List<String> fileNames) {
 		if (fileNames == null || fileNames.size() == 0) {
 			return;
@@ -96,5 +96,5 @@ public class CustomFileUtil {
 			}
 		});
 	}
-	
+
 }

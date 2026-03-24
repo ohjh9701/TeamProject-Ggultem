@@ -82,6 +82,7 @@ public class NoticeServiceImpl implements NoticeService {
 	            .viewCount(0)
 	            .member(member) // 가짜 객체지만 FK 저장에는 충분!
 	            .enabled(1)     // 활성화 상태로 등록
+	            .isPinned(noticeDTO.getIsPinned()) // 상단고정기능
 	            .build();
 
 	    // 4. [이미지 연결] 저장된 파일명들을 엔티티의 리스트에 추가
@@ -102,6 +103,7 @@ public class NoticeServiceImpl implements NoticeService {
 		// 제목, 내용 수정
 		notice.changeTitle(noticeDTO.getTitle());
 		notice.changeContent(noticeDTO.getContent());
+		notice.changePinned(noticeDTO.getIsPinned()); //고정상태 변경 메서드 호출.
 
 		// 이미지 교체 로직 (Member의 updateToThumbnail 참고)
 		// 기존 파일 삭제
@@ -152,15 +154,17 @@ public class NoticeServiceImpl implements NoticeService {
 	public PageResponseDTO<NoticeDTO> list(SearchDTO searchDTO) { // 파라미터를 SearchDTO로 변경
 
 		// 1. 페이징 및 정렬 설정
-		Pageable pageable = PageRequest.of(searchDTO.getPage() - 1, searchDTO.getSize(),
-				Sort.by("noticeId").descending());
+		Pageable pageable = PageRequest.of(
+				searchDTO.getPage() - 1,
+				searchDTO.getSize(),
+				Sort.by("isPinned").descending().and(
+				Sort.by("noticeId").descending()));
 
 		Page<Notice> result = null;
 
 		// 2. 검색 조건에 따른 분기 처리
 		if (searchDTO.getKeyword() != null && !searchDTO.getKeyword().isEmpty()) {
 
-			// 검색 로그 기록
 			SearchLog logEntity = SearchLog.builder().keyword(searchDTO.getKeyword())
 					.searchType(searchDTO.getSearchType()).build();
 			searchLogRepository.save(logEntity);
