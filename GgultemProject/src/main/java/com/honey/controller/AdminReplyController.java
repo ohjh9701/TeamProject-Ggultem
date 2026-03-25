@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/admin/reply")
 @RequiredArgsConstructor
-//@PreAuthorize("hasRole('ADMIN')")
 public class AdminReplyController {
 	private final BoardReplyService boardReplyService;
 
