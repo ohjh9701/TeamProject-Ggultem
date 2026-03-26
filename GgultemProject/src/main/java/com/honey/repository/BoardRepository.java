@@ -15,24 +15,37 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     // 일반 사용자
     // =========================
 
-    // 삭제 안된 게시글만
+    // ✅ 전체 조회 (검색 없이)
     @EntityGraph(attributePaths = { "boardImage" })
-    @Query("SELECT b FROM Board b WHERE b.enabled = 1")
+    @Query("""
+        SELECT b FROM Board b
+        WHERE b.enabled = 1
+    """)
     Page<Board> findAllActive(Pageable pageable);
 
-    // 검색
+
+    // ✅ 검색 (전체 / 제목 / 내용 / 작성자)
     @EntityGraph(attributePaths = { "boardImage" })
-    @Query("SELECT b FROM Board b WHERE b.enabled = 1 AND (" +
-            "(:searchType = 'title' AND b.title LIKE %:keyword%) OR " +
-            "(:searchType = 'writer' AND b.writer LIKE %:keyword%) OR " +
-            "(:searchType = 'all' AND (b.title LIKE %:keyword% OR b.writer LIKE %:keyword%)) OR " +
-            "((:searchType IS NULL OR :searchType = '') AND (b.title LIKE %:keyword% OR b.writer LIKE %:keyword%))" +
-            ")")
+    @Query("""
+    	    SELECT b FROM Board b
+    	    WHERE b.enabled = 1
+    	    AND (
+    	        :keyword IS NULL
+    	        OR :keyword = ''
+    	        OR :searchType = 'all'  
+    	        OR (
+    	            (:searchType = 'title' AND b.title LIKE %:keyword%) OR
+    	            (:searchType = 'writer' AND b.writer LIKE %:keyword%) OR
+    	            (:searchType = 'content' AND b.contentText IS NOT NULL AND b.contentText LIKE %:keyword%)
+    	        )
+    	    )
+    	""")
     Page<Board> searchByCondition(
             @Param("searchType") String searchType,
             @Param("keyword") String keyword,
             Pageable pageable
     );
+
 
     // =========================
     // 관리자
@@ -43,14 +56,18 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     @Query("SELECT b FROM Board b")
     Page<Board> findAllAdmin(Pageable pageable);
 
-    // =========================
-    // 관리자 (통합 검색) 🔥 최종 수정
-    // =========================
+
+    // 관리자 검색
     @EntityGraph(attributePaths = { "boardImage" })
     @Query("""
         SELECT b FROM Board b
         WHERE (:enabled IS NULL OR b.enabled = :enabled)
-        AND (:keyword IS NULL OR b.title LIKE %:keyword%)
+        AND (
+            :keyword IS NULL
+            OR :keyword = ''
+            OR b.title LIKE %:keyword%
+            OR (b.contentText IS NOT NULL AND b.contentText LIKE %:keyword%)
+        )
     """)
     Page<Board> searchAllAdmin(
             @Param("enabled") Integer enabled,

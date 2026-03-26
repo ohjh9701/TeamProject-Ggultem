@@ -40,29 +40,42 @@ public class BoardReplyServiceImpl implements BoardReplyService {
                 .email(dto.getEmail())
                 .build();
 
+        BoardReply parent = null;
+
+        if (dto.getParentReplyNo() != null) {
+            parent = boardReplyRepository.findById(dto.getParentReplyNo())
+                    .orElse(null);
+        }
+
         BoardReply reply = BoardReply.builder()
                 .board(board)
                 .member(member)
                 .content(dto.getContent())
                 .enabled(1)
+                .parent(parent)   
                 .build();
 
         return boardReplyRepository.save(reply).getReplyNo();
     }
-
     ///////////////////
     /// 댓글 목록
     ///////////////////
     @Override
     public List<BoardReplyDTO> list(Integer boardNo) {
 
-        return boardReplyRepository.findByBoardBoardNo(boardNo).stream()
+    	return boardReplyRepository.findByBoardBoardNo(boardNo).stream()
                 .map(reply -> BoardReplyDTO.builder()
                         .replyNo(reply.getReplyNo())
                         .boardNo(reply.getBoard().getBoardNo())
                         .email(reply.getMember().getEmail())
                         .content(reply.getContent())
+                        .writer(reply.getMember().getNickname())
                         .enabled(reply.getEnabled())
+                        .parentReplyNo(
+                            reply.getParent() != null 
+                                ? reply.getParent().getReplyNo() 
+                                : null
+                        ) 
                         .build())
                 .toList();
     }
@@ -126,6 +139,7 @@ public class BoardReplyServiceImpl implements BoardReplyService {
                         .replyNo(reply.getReplyNo())
                         .boardNo(reply.getBoard().getBoardNo())
                         .email(reply.getMember().getEmail())
+                        .writer(reply.getMember().getNickname()) 
                         .content(reply.getContent())
                         .enabled(reply.getEnabled())
                         .build())

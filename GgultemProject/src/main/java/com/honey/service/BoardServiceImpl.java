@@ -31,6 +31,17 @@ public class BoardServiceImpl implements BoardService {
     private final MemberRepository memberRepository;
 
     ///////////////////
+    /// HTML 제거 코드
+    ///////////////////
+    private String extractText(String html) {
+        if (html == null) return null;
+
+        return html.replaceAll("<[^>]*>", "")
+                   .replaceAll("&nbsp;", " ")
+                   .trim();
+    }
+
+    ///////////////////
     /// 게시글 등록
     ///////////////////
     @Override
@@ -39,10 +50,13 @@ public class BoardServiceImpl implements BoardService {
         Member member = memberRepository.findById(boardDTO.getEmail())
                 .orElseThrow(() -> new RuntimeException("회원 없음"));
 
+        String text = extractText(boardDTO.getContent());
+
         Board board = Board.builder()
                 .title(boardDTO.getTitle())
                 .writer(member.getNickname())
                 .content(boardDTO.getContent())
+                .contentText(text) 
                 .viewCount(0)
                 .enabled(1)
                 .member(member)
@@ -88,7 +102,11 @@ public class BoardServiceImpl implements BoardService {
         }
 
         if (boardDTO.getContent() != null && !boardDTO.getContent().isEmpty()) {
+
             board.setContent(boardDTO.getContent());
+
+            String text = extractText(boardDTO.getContent());
+            board.changeContentText(text); // 🔥 핵심 추가
         }
     }
 
@@ -154,7 +172,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     ///////////////////
-    /// 관리자 게시글 목록 (🔥 수정 완료)
+    /// 관리자 게시글 목록
     ///////////////////
     @Override
     public PageResponseDTO<BoardDTO> adminList(SearchDTO searchDTO) {
@@ -165,19 +183,16 @@ public class BoardServiceImpl implements BoardService {
                 Sort.by("boardNo").descending()
         );
 
-        // 🔥 keyword 처리
         String keyword = searchDTO.getKeyword();
         if (keyword != null && keyword.trim().isEmpty()) {
             keyword = null;
         }
 
-        // 🔥 enabled null 방어 (핵심)
         Integer enabled = null;
         if (searchDTO.getEnabled() != null && !searchDTO.getEnabled().isEmpty()) {
             enabled = Integer.parseInt(searchDTO.getEnabled());
         }
 
-        // 🔥 관리자 검색 실행
         Page<Board> result =
                 boardRepository.searchAllAdmin(enabled, keyword, pageable);
 
