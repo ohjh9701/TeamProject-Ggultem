@@ -23,4 +23,7 @@ public class SearchDTO extends PageRequestDTO {
 	//비즈니스 광고용
 	private String sign;
 	private String category;
+	
+	//비즈머니용
+	private String state;
 }

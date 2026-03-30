@@ -34,4 +34,8 @@ public interface BusinessBoardService {
 
 	BusinessStatsDTO getStats(String email, String start, String end);
 
+	public PageResponseDTO<BusinessBoardDTO> adminList(SearchDTO searchDTO);
+
+	public PageResponseDTO<BusinessBoardDTO> adminDeleteList(SearchDTO searchDTO);
+
 }

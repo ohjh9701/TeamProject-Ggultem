@@ -1,0 +1,63 @@
+package com.honey.repository;
+
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.honey.domain.BizMoneyHistory;
+
+public interface BizMoneyHistoryRepository extends JpaRepository<BizMoneyHistory, Long> {
+	
+	@Query("SELECT bh FROM BizMoneyHistory bh " +
+		       "WHERE bh.member.email = :email " +
+		       "AND (:state = 'all' OR bh.type = :state) " +
+		       "AND ( " + 
+		       "  (:searchType = 'detail' AND bh.detail LIKE %:keyword%) OR " +
+		       "  (:searchType = 'amount' AND CAST(bh.amount AS string) LIKE %:keyword%) OR " + // ✨ 여기도 % 추가
+		       "  (:searchType = 'all' AND (bh.detail LIKE %:keyword% OR CAST(bh.amount AS string) LIKE %:keyword%)) OR " +
+		       "  ((:searchType IS NULL OR :searchType = '') AND (bh.detail LIKE %:keyword% OR CAST(bh.amount AS string) LIKE %:keyword%)) " +
+		       ") ORDER BY bh.regDate DESC")
+	Page<BizMoneyHistory> searchByConditionStateFilter(@Param("searchType") String searchType,
+			@Param("keyword") String keyword,
+			@Param("state") String state,
+			Pageable pageable,
+			@Param("email") String email);
+	
+	@Query("SELECT bh FROM BizMoneyHistory bh " +
+			"WHERE bh.member.email = :email " +
+			"AND ( " + 
+			"  (:searchType = 'detail' AND bh.detail LIKE %:keyword%) OR " +
+			"  (:searchType = 'amount' AND CAST(bh.amount AS string) LIKE %:keyword%) OR " + // ✨ 여기도 % 추가
+			"  (:searchType = 'all' AND (bh.detail LIKE %:keyword% OR CAST(bh.amount AS string) LIKE %:keyword%)) OR " +
+			"  ((:searchType IS NULL OR :searchType = '') AND (bh.detail LIKE %:keyword% OR CAST(bh.amount AS string) LIKE %:keyword%)) " +
+			") ORDER BY bh.regDate DESC")
+	Page<BizMoneyHistory> searchByConditionAllFilter(@Param("searchType") String searchType,
+			@Param("keyword") String keyword,
+			Pageable pageable,
+			@Param("email") String email);
+	
+	@Query("SELECT bh FROM BizMoneyHistory bh " + "WHERE bh.member.email = :email " + "AND bh.type = :state "
+			+ "ORDER BY bh.regDate DESC")
+	Page<BizMoneyHistory> findAllBizMoneyAllFilter(Pageable pageable, @Param("state") String state, @Param("email") String email);
+	
+	@Query("SELECT bh FROM BizMoneyHistory bh " + "WHERE bh.member.email = :email ORDER BY bh.regDate DESC")
+	Page<BizMoneyHistory> findAllBizMoney(Pageable pageable, @Param("email") String email);
+	
+	@Query("SELECT COALESCE(ABS(SUM(bh.amount)), 0) " + 
+		       "FROM BizMoneyHistory bh " + 
+		       "WHERE bh.member.email = :email " + 
+		       "AND bh.type = 'SPEND' " + 
+		       "AND bh.regDate >= :startOfToday") // ✨ 외부에서 정해준 시간을 기준으로!
+		Long getTodaySpend(@Param("email") String email, @Param("startOfToday") java.time.LocalDateTime startOfToday);
+	
+	@Query("SELECT COALESCE(ABS(SUM(bh.amount)), 0) " + 
+			"FROM BizMoneyHistory bh " + 
+			"WHERE bh.member.email = :email " + 
+			"AND bh.type = 'SPEND' ") // ✨ 외부에서 정해준 시간을 기준으로!
+	Long getTotalSpend(@Param("email") String email);
+
+}

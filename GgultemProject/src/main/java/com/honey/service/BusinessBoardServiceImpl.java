@@ -191,6 +191,123 @@ public class BusinessBoardServiceImpl implements BusinessBoardService {
 		return PageResponseDTO.<BusinessBoardDTO>withAll().dtoList(dtoList).pageRequestDTO(searchDTO)
 				.totalCount(result.getTotalElements()).build();
 	}
+	
+	////////////////////////////////
+	/// Admin List Service
+	/// ////////////////////////////
+		@Override
+		@Transactional(readOnly = true)
+		public PageResponseDTO<BusinessBoardDTO> adminList(SearchDTO searchDTO) {
+			Pageable pageable = PageRequest.of(searchDTO.getPage() - 1, searchDTO.getSize(),
+					Sort.by("endDate").descending());
+			
+			Page<BusinessBoard> result = null;
+			if (searchDTO.getKeyword() != null && !searchDTO.getKeyword().isEmpty()) {
+
+				if (searchDTO.getSign() != null && searchDTO.getCategory() != null) {
+					result = boardRepository.adminSearchByConditionAllFilter(searchDTO.getSearchType(), searchDTO.getKeyword(),
+							Boolean.parseBoolean(searchDTO.getSign()), searchDTO.getCategory(),
+							pageable);
+
+				} else if (searchDTO.getSign() != null) {
+					result = boardRepository.adminSearchByConditionSignFilter(searchDTO.getSearchType(), searchDTO.getKeyword(),
+							Boolean.parseBoolean(searchDTO.getSign()), pageable);
+
+				} else if (searchDTO.getCategory() != null) {
+					result = boardRepository.adminSearchByConditionCategoryFilter(searchDTO.getSearchType(),
+							searchDTO.getKeyword(), searchDTO.getCategory(), pageable);
+				}
+			} else if (searchDTO.getSign() != null && searchDTO.getCategory() != null) {
+				result = boardRepository.adminFindAllBusinessAllFilter(pageable, Boolean.parseBoolean(searchDTO.getSign()),
+						searchDTO.getCategory());
+
+			} else if (searchDTO.getSign() != null) {
+				result = boardRepository.adminFindAllBusinessSignFilter(pageable, Boolean.parseBoolean(searchDTO.getSign()));
+			} else if (searchDTO.getCategory() != null) {
+				result = boardRepository.adminFindAllBusinessCategoryFilter(pageable, searchDTO.getCategory());
+			} else {
+				result = boardRepository.adminFindAllBusiness(pageable);
+			}
+
+			List<BusinessBoardDTO> dtoList = result.getContent().stream().map(businessBoard -> {
+				BusinessBoardDTO dto = modelMapper.map(businessBoard, BusinessBoardDTO.class);
+
+				// 🚩 이메일 및 날짜 수동 매핑 (타입이 달라 ModelMapper가 놓친 부분)
+				if (businessBoard.getMember() != null) {
+					dto.setEmail(businessBoard.getMember().getEmail());
+				}
+				
+				if(LocalDateTime.now().isBefore(businessBoard.getEndDate())) {
+					dto.setOnOff(true);
+				} else {
+					dto.setOnOff(false);
+				}
+
+				List<String> fileNameList = businessBoard.getBItemList().stream().map(item -> item.getFileName())
+						.collect(Collectors.toList());
+				dto.setUploadFileNames(fileNameList);
+
+				return dto;
+			}).collect(Collectors.toList());
+
+			return PageResponseDTO.<BusinessBoardDTO>withAll().dtoList(dtoList).pageRequestDTO(searchDTO)
+					.totalCount(result.getTotalElements()).build();
+		}
+		
+		@Override
+		@Transactional(readOnly = true)
+		public PageResponseDTO<BusinessBoardDTO> adminDeleteList(SearchDTO searchDTO) {
+			Pageable pageable = PageRequest.of(searchDTO.getPage() - 1, searchDTO.getSize(),
+					Sort.by("dtdDate").descending());
+			
+			Page<BusinessBoard> result = null;
+			if (searchDTO.getKeyword() != null && !searchDTO.getKeyword().isEmpty()) {
+
+				if (searchDTO.getSign() != null && searchDTO.getCategory() != null) {
+					result = boardRepository.adminSearchByConditionDeleteFilter(searchDTO.getSearchType(), searchDTO.getKeyword(),
+							Boolean.parseBoolean(searchDTO.getSign()), searchDTO.getCategory(),
+							pageable);
+
+				} else if (searchDTO.getSign() != null) {
+					result = boardRepository.adminSearchByConditionDeleteSignFilter(searchDTO.getSearchType(), searchDTO.getKeyword(),
+							Boolean.parseBoolean(searchDTO.getSign()), pageable);
+
+				} else if (searchDTO.getCategory() != null) {
+					result = boardRepository.adminSearchByConditionDeleteCategoryFilter(searchDTO.getSearchType(),
+							searchDTO.getKeyword(), searchDTO.getCategory(), pageable);
+				}
+			} else if (searchDTO.getSign() != null && searchDTO.getCategory() != null) {
+				result = boardRepository.adminFindAllBusinessDeleteFilter(pageable, Boolean.parseBoolean(searchDTO.getSign()),
+						searchDTO.getCategory());
+
+			} else if (searchDTO.getSign() != null) {
+				result = boardRepository.adminFindAllBusinessDeleteSignFilter(pageable, Boolean.parseBoolean(searchDTO.getSign()));
+			} else if (searchDTO.getCategory() != null) {
+				result = boardRepository.adminFindAllBusinessDeleteCategoryFilter(pageable, searchDTO.getCategory());
+			} else {
+				result = boardRepository.adminFindDeleteBusiness(pageable);
+			}
+
+			List<BusinessBoardDTO> dtoList = result.getContent().stream().map(businessBoard -> {
+				BusinessBoardDTO dto = modelMapper.map(businessBoard, BusinessBoardDTO.class);
+
+				// 🚩 이메일 및 날짜 수동 매핑 (타입이 달라 ModelMapper가 놓친 부분)
+				if (businessBoard.getMember() != null) {
+					dto.setEmail(businessBoard.getMember().getEmail());
+				}
+				
+				dto.setOnOff(false);
+
+				List<String> fileNameList = businessBoard.getBItemList().stream().map(item -> item.getFileName())
+						.collect(Collectors.toList());
+				dto.setUploadFileNames(fileNameList);
+
+				return dto;
+			}).collect(Collectors.toList());
+
+			return PageResponseDTO.<BusinessBoardDTO>withAll().dtoList(dtoList).pageRequestDTO(searchDTO)
+					.totalCount(result.getTotalElements()).build();
+		}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -310,7 +427,8 @@ public class BusinessBoardServiceImpl implements BusinessBoardService {
 	public List<BusinessBoardDTO> adPSlist() {
 		String category = "powershoping";
 		boolean sign = true;
-		List<BusinessBoard> result = boardRepository.findADPSList(category, sign);
+		long minBizMoney = 100;
+		List<BusinessBoard> result = boardRepository.findADPSList(category, sign, minBizMoney);
 
 		List<BusinessBoardDTO> dtoList = result.stream().map(businessBoard -> {
 			BusinessBoardDTO dto = modelMapper.map(businessBoard, BusinessBoardDTO.class);
@@ -355,7 +473,8 @@ public class BusinessBoardServiceImpl implements BusinessBoardService {
 	public List<BusinessBoardDTO> adPlList() {
 		String category = "powerlink";
 		boolean sign = true;
-		List<BusinessBoard> result = boardRepository.findADPSList(category, sign);
+		long minBizMoney = 100;
+		List<BusinessBoard> result = boardRepository.findADPSList(category, sign, minBizMoney);
 
 		List<BusinessBoardDTO> dtoList = result.stream().map(businessBoard -> {
 			BusinessBoardDTO dto = modelMapper.map(businessBoard, BusinessBoardDTO.class);
@@ -434,4 +553,9 @@ public class BusinessBoardServiceImpl implements BusinessBoardService {
 	            .dailyStats(fullPeriodStats)
 	            .build();
 	}
+	
+	
+	
+	
+	
 }
