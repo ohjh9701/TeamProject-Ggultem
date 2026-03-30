@@ -49,23 +49,29 @@ public class BusinessBoardController {
 		return businessBoardService.get(no);
 	}
 	
-	@GetMapping("/list")
-	public PageResponseDTO<BusinessBoardDTO> list(SearchDTO searchDTO) {
+	@GetMapping("/list/{email}")
+	public PageResponseDTO<BusinessBoardDTO> list(SearchDTO searchDTO, @PathVariable(name = "email") String email) {
 		
-			if(searchDTO.getSign().equals("all")) {
-				searchDTO.setSign(null);
-			}
-			
-			if(searchDTO.getCategory().equals("all")) {
-				searchDTO.setCategory(null);
-			}
+		if("all".equals(searchDTO.getSign())) {
+			searchDTO.setSign(null);
+		}
 		
-		return businessBoardService.list(searchDTO);
+		if("all".equals(searchDTO.getCategory())) {
+			searchDTO.setCategory(null);
+		}
+		return businessBoardService.list(searchDTO, email);
 	}
 	
-	@GetMapping("/deletelist")
-	public PageResponseDTO<BusinessBoardDTO> deleteList(SearchDTO searchDTO) {
-		return businessBoardService.deleteList(searchDTO);
+	@GetMapping("/deletelist/{email}")
+	public PageResponseDTO<BusinessBoardDTO> deleteList(SearchDTO searchDTO, @PathVariable(name = "email") String email) {
+		if("all".equals(searchDTO.getSign())) {
+			searchDTO.setSign(null);
+		}
+		
+		if("all".equals(searchDTO.getCategory())) {
+			searchDTO.setCategory(null);
+		}
+		return businessBoardService.deleteList(searchDTO, email);
 	}
 	
 	@GetMapping("/approve/{no}") // 비즈니스 회원 게시판 승인로직

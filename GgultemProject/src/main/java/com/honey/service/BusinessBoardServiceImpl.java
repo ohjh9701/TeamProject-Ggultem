@@ -76,9 +76,11 @@ public class BusinessBoardServiceImpl implements BusinessBoardService {
 	// 2. 리스트(list) 메서드 수정
 	@Override
 	@Transactional(readOnly = true)
-	public PageResponseDTO<BusinessBoardDTO> list(SearchDTO searchDTO) {
+	public PageResponseDTO<BusinessBoardDTO> list(SearchDTO searchDTO, String email) {
 		Pageable pageable = PageRequest.of(searchDTO.getPage() - 1, searchDTO.getSize(),
 				Sort.by("endDate").descending());
+		
+		log.info("넘어온 이메일 정보 : "+email);
 
 		Page<BusinessBoard> result = null;
 		if (searchDTO.getKeyword() != null && !searchDTO.getKeyword().isEmpty()) {
@@ -86,26 +88,26 @@ public class BusinessBoardServiceImpl implements BusinessBoardService {
 			if (searchDTO.getSign() != null && searchDTO.getCategory() != null) {
 				result = boardRepository.searchByConditionAllFilter(searchDTO.getSearchType(), searchDTO.getKeyword(),
 						Boolean.parseBoolean(searchDTO.getSign()), searchDTO.getCategory(),
-						pageable);
+						pageable, email);
 
 			} else if (searchDTO.getSign() != null) {
 				result = boardRepository.searchByConditionSignFilter(searchDTO.getSearchType(), searchDTO.getKeyword(),
-						Boolean.parseBoolean(searchDTO.getSign()), pageable);
+						Boolean.parseBoolean(searchDTO.getSign()), pageable, email);
 
 			} else if (searchDTO.getCategory() != null) {
 				result = boardRepository.searchByConditionCategoryFilter(searchDTO.getSearchType(),
-						searchDTO.getKeyword(), searchDTO.getCategory(), pageable);
+						searchDTO.getKeyword(), searchDTO.getCategory(), pageable, email);
 			}
 		} else if (searchDTO.getSign() != null && searchDTO.getCategory() != null) {
 			result = boardRepository.findAllBusinessAllFilter(pageable, Boolean.parseBoolean(searchDTO.getSign()),
-					searchDTO.getCategory());
+					searchDTO.getCategory(), email);
 
 		} else if (searchDTO.getSign() != null) {
-			result = boardRepository.findAllBusinessSignFilter(pageable, Boolean.parseBoolean(searchDTO.getSign()));
+			result = boardRepository.findAllBusinessSignFilter(pageable, Boolean.parseBoolean(searchDTO.getSign()), email);
 		} else if (searchDTO.getCategory() != null) {
-			result = boardRepository.findAllBusinessCategoryFilter(pageable, searchDTO.getCategory());
+			result = boardRepository.findAllBusinessCategoryFilter(pageable, searchDTO.getCategory(), email);
 		} else {
-			result = boardRepository.findAllBusiness(pageable);
+			result = boardRepository.findAllBusiness(pageable, email);
 		}
 
 		List<BusinessBoardDTO> dtoList = result.getContent().stream().map(businessBoard -> {
@@ -135,9 +137,11 @@ public class BusinessBoardServiceImpl implements BusinessBoardService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public PageResponseDTO<BusinessBoardDTO> deleteList(SearchDTO searchDTO) {
+	public PageResponseDTO<BusinessBoardDTO> deleteList(SearchDTO searchDTO, String email) {
 		Pageable pageable = PageRequest.of(searchDTO.getPage() - 1, searchDTO.getSize(),
 				Sort.by("dtdDate").descending());
+		
+		log.info("넘어온 이메일 정보 : "+email);
 
 		Page<BusinessBoard> result = null;
 		if (searchDTO.getKeyword() != null && !searchDTO.getKeyword().isEmpty()) {
@@ -145,26 +149,26 @@ public class BusinessBoardServiceImpl implements BusinessBoardService {
 			if (searchDTO.getSign() != null && searchDTO.getCategory() != null) {
 				result = boardRepository.searchByConditionDeleteFilter(searchDTO.getSearchType(), searchDTO.getKeyword(),
 						Boolean.parseBoolean(searchDTO.getSign()), searchDTO.getCategory(),
-						pageable);
+						pageable, email);
 
 			} else if (searchDTO.getSign() != null) {
 				result = boardRepository.searchByConditionDeleteSignFilter(searchDTO.getSearchType(), searchDTO.getKeyword(),
-						Boolean.parseBoolean(searchDTO.getSign()), pageable);
+						Boolean.parseBoolean(searchDTO.getSign()), pageable, email);
 
 			} else if (searchDTO.getCategory() != null) {
 				result = boardRepository.searchByConditionDeleteCategoryFilter(searchDTO.getSearchType(),
-						searchDTO.getKeyword(), searchDTO.getCategory(), pageable);
+						searchDTO.getKeyword(), searchDTO.getCategory(), pageable, email);
 			}
 		} else if (searchDTO.getSign() != null && searchDTO.getCategory() != null) {
 			result = boardRepository.findAllBusinessDeleteFilter(pageable, Boolean.parseBoolean(searchDTO.getSign()),
-					searchDTO.getCategory());
+					searchDTO.getCategory(), email);
 
 		} else if (searchDTO.getSign() != null) {
-			result = boardRepository.findAllBusinessDeleteSignFilter(pageable, Boolean.parseBoolean(searchDTO.getSign()));
+			result = boardRepository.findAllBusinessDeleteSignFilter(pageable, Boolean.parseBoolean(searchDTO.getSign()), email);
 		} else if (searchDTO.getCategory() != null) {
-			result = boardRepository.findAllBusinessDeleteCategoryFilter(pageable, searchDTO.getCategory());
+			result = boardRepository.findAllBusinessDeleteCategoryFilter(pageable, searchDTO.getCategory(), email);
 		} else {
-			result = boardRepository.findDeleteBusiness(pageable);
+			result = boardRepository.findDeleteBusiness(pageable, email);
 		}
 
 		List<BusinessBoardDTO> dtoList = result.getContent().stream().map(businessBoard -> {
@@ -199,10 +203,6 @@ public class BusinessBoardServiceImpl implements BusinessBoardService {
 		if (businessBoard.getMember() != null) {
 			businessBoardDTO.setEmail(businessBoard.getMember().getEmail());
 		}
-
-//		if (businessBoard.getEndDate() != null) {
-//			businessBoardDTO.setEndDate(businessBoard.getEndDate().toLocalDate().toString());
-//		}
 		
 		if(LocalDateTime.now().isBefore(businessBoard.getEndDate())) {
 			businessBoardDTO.setOnOff(true);

@@ -14,9 +14,9 @@ public interface BusinessBoardService {
 
 	public BusinessBoardDTO get(Long no);
 
-	public PageResponseDTO<BusinessBoardDTO> list(SearchDTO searchDTO);
+	public PageResponseDTO<BusinessBoardDTO> list(SearchDTO searchDTO, String email);
 
-	public PageResponseDTO<BusinessBoardDTO> deleteList(SearchDTO searchDTO);
+	public PageResponseDTO<BusinessBoardDTO> deleteList(SearchDTO searchDTO, String email);
 
 	public void approve(Long no);
 

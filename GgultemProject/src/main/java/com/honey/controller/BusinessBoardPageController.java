@@ -53,8 +53,8 @@ public class BusinessBoardPageController {
 		return businessBoardService.get(no);
 	}
 	
-	@GetMapping("/list")
-	public PageResponseDTO<BusinessBoardDTO> list(SearchDTO searchDTO) {
+	@GetMapping("/list/{email}")
+	public PageResponseDTO<BusinessBoardDTO> list(SearchDTO searchDTO, @PathVariable(name = "email") String email) {
 		
 		if("all".equals(searchDTO.getSign())) {
 			searchDTO.setSign(null);
@@ -64,11 +64,11 @@ public class BusinessBoardPageController {
 			searchDTO.setCategory(null);
 		}
 		
-		return businessBoardService.list(searchDTO);
+		return businessBoardService.list(searchDTO, email);
 	}
 	
-	@GetMapping("/deletelist")
-	public PageResponseDTO<BusinessBoardDTO> deleteList(SearchDTO searchDTO) {
+	@GetMapping("/deletelist/{email}")
+	public PageResponseDTO<BusinessBoardDTO> deleteList(SearchDTO searchDTO, @PathVariable(name = "email") String email) {
 		if("all".equals(searchDTO.getSign())) {
 			searchDTO.setSign(null);
 		}
@@ -76,7 +76,7 @@ public class BusinessBoardPageController {
 		if("all".equals(searchDTO.getCategory())) {
 			searchDTO.setCategory(null);
 		}
-		return businessBoardService.deleteList(searchDTO);
+		return businessBoardService.deleteList(searchDTO, email);
 	}
 	
 	@GetMapping("/adlist")
