@@ -15,7 +15,7 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     // 일반 사용자
     // =========================
 
-    // ✅ 전체 조회 (검색 없이)
+    //  전체 조회 (검색 없이)
     @EntityGraph(attributePaths = { "boardImage" })
     @Query("""
         SELECT b FROM Board b
@@ -24,7 +24,7 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     Page<Board> findAllActive(Pageable pageable);
 
 
-    // ✅ 검색 (전체 / 제목 / 내용 / 작성자)
+    // 검색 (전체 / 제목 / 내용 / 작성자)
     @EntityGraph(attributePaths = { "boardImage" })
     @Query("""
     	    SELECT b FROM Board b
