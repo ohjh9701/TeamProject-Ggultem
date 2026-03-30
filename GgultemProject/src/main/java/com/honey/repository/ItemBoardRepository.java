@@ -36,6 +36,7 @@ public interface ItemBoardRepository extends JpaRepository<ItemBoard, Long> {
 	@Query("""
 			SELECT i FROM ItemBoard i
 			WHERE i.enabled >= 1
+			AND (:email IS NULL OR :email = '' OR :email = 'all' OR i.member.email = :email)
 			AND (
 			    :status = 'all' OR
 			    LOWER(TRIM(i.status)) = LOWER(TRIM(:status)) OR
@@ -53,7 +54,13 @@ public interface ItemBoardRepository extends JpaRepository<ItemBoard, Long> {
 			    ))
 			)
 			""")
-	Page<ItemBoard> searchWithFilter(@Param("searchType") String searchType, @Param("keyword") String keyword,
-			@Param("status") String status, @Param("category") String category, @Param("location") String location,
+	Page<ItemBoard> searchWithFilter(
+			@Param("searchType") String searchType, 
+			@Param("keyword") String keyword,
+			@Param("status") String status, 
+			@Param("category") String category, 
+			@Param("location") String location,
+			@Param("email") String email,
 			Pageable pageable);
+
 }
