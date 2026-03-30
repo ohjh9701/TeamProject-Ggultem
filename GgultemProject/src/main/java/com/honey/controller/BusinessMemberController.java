@@ -109,6 +109,16 @@ public class BusinessMemberController {
 		return businessService.getBizMoneyHistory(searchDTO, email);	
 	}
 	
+	@GetMapping("/admin/history")
+	public PageResponseDTO<BizMoneyHistoryDTO> bizMoneyHistoryAdmin(SearchDTO searchDTO) {
+		
+		if("all".equals(searchDTO.getState())) {
+			searchDTO.setState(null);
+		}
+		
+		return businessService.getBizMoneyHistoryAdmin(searchDTO);	
+	}
+	
 	@PutMapping("/spend/{email}")
 	public void spendMoneyByClick(@PathVariable(name = "email") String email, Long amount, String title) {
 		businessService.spendMoneyByClick(email, amount, title);

@@ -325,6 +325,39 @@ public class BusinessMemberServiceImpl implements BusinessMemberService {
 	public Integer getTotalViewCount(String email) {
 		return businessBoardRepository.getTotalClick(email);
 	}
+
+	@Override
+	public PageResponseDTO<BizMoneyHistoryDTO> getBizMoneyHistoryAdmin(SearchDTO searchDTO) {
+		Pageable pageable = PageRequest.of(searchDTO.getPage() - 1, searchDTO.getSize(),
+				Sort.by("regDate").descending());
+		
+		Page<BizMoneyHistory> result = null;
+		if (searchDTO.getKeyword() != null && !searchDTO.getKeyword().isEmpty()) {
+
+			if (searchDTO.getState() != null) {
+				result = bizMoneyHistoryRepository.searchByConditionStateFilterAdmin(searchDTO.getSearchType(), searchDTO.getKeyword(),
+						searchDTO.getState(),
+						pageable);
+			} else {
+				result = bizMoneyHistoryRepository.searchByConditionAllFilterAdmin(searchDTO.getSearchType(), searchDTO.getKeyword(),
+						pageable);
+			}
+
+		} else if (searchDTO.getState() != null) {
+			result = bizMoneyHistoryRepository.findAllBizMoneyAllFilterAdmin(pageable, searchDTO.getState());
+		} else {
+			result = bizMoneyHistoryRepository.findAllBizMoneyAdmin(pageable);
+		}
+
+		List<BizMoneyHistoryDTO> dtoList = result.getContent().stream().map(bizMoneyHistory -> {
+			BizMoneyHistoryDTO dto = modelMapper.map(bizMoneyHistory, BizMoneyHistoryDTO.class);
+			
+			return dto;
+		}).collect(Collectors.toList());
+
+		return PageResponseDTO.<BizMoneyHistoryDTO>withAll().dtoList(dtoList).pageRequestDTO(searchDTO)
+				.totalCount(result.getTotalElements()).build();
+	}
 	
 
 }
