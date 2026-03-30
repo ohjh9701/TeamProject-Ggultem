@@ -38,4 +38,6 @@ public interface BusinessMemberService {
 
 	Integer getTodayViewCount(String email);
 
+	public PageResponseDTO<BizMoneyHistoryDTO> getBizMoneyHistoryAdmin(SearchDTO searchDTO);
+
 }
