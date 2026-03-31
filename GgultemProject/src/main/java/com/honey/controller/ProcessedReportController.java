@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProcessedReportController {
 
-	private final ProcessedReportService processedService;
+    private final ProcessedReportService processedService;
 
 	@PostMapping("/process")
 	public Map<String, Long> process(@RequestBody ProcessedReportDTO dto) {

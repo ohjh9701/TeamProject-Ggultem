@@ -64,6 +64,10 @@ public class ItemBoard extends BaseTimeEntity {
 	private String itemUrl;
 	private String pictureUrl;
 	private int viewCount;
+	
+	// 주소(위도,경도)
+	private Double lat; 
+    private Double lng;
 
 	@Builder.Default
 	@ElementCollection
@@ -103,6 +107,13 @@ public class ItemBoard extends BaseTimeEntity {
 	
 	public void chanceViewCount(int viewCount) {
 		this.viewCount = viewCount;
+	}
+	
+	public void changeLat(double lat) {
+		this.lat = lat;
+	}
+	public void changeLng(double lng) {
+		this.lng = lng;
 	}
 
 	public void addImage(ItemBoardImage image) {
