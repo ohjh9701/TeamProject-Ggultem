@@ -107,6 +107,9 @@ public class ProcessedReportServiceImpl implements ProcessedReportService {
                 .status(report.getStatus())
                 .targetNo(report.getTargetNo())
                 .regDate(report.getRegDate())
+                .uploadFileNames(report.getReportImage().stream()
+                        .map(img -> img.getFileName())
+                        .collect(Collectors.toList()))
                 .build();
     }
 
