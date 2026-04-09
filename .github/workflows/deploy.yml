@@ -29,8 +29,9 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          source: "target/*.jar"
+          source: "TeamProject-Ggultem/GgultemProject/target/*.jar" 
           target: "/home/ubuntu/ggultem-deploy"
+          strip_components: 3
 
       - name: Execute Remote SSH commands
         uses: appleboy/ssh-action@master
