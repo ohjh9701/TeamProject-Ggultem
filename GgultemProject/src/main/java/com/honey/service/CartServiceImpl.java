@@ -63,11 +63,9 @@ public class CartServiceImpl implements CartService {
 	public PageResponseDTO<CartDTO> list(SearchDTO searchDTO, String email) {
 		Pageable pageable = PageRequest.of(searchDTO.getPage() - 1, searchDTO.getSize(), Sort.by("id").descending());
 
-		// 💡 안전 장치: null이면 빈 문자열("")로 바꿔치기
 		String type = (searchDTO.getSearchType() != null) ? searchDTO.getSearchType() : "";
 		String keyword = (searchDTO.getKeyword() != null) ? searchDTO.getKeyword() : "";
 
-		// 💡 위에서 안전하게 바꾼 keyword를 사용해서 '딱 한 번'만 호출
 		Page<Cart> result = cartRepository.searchByCondition(type, keyword, pageable, email);
 
 		List<CartDTO> dtoList = result.getContent().stream().map(cart -> modelMapper.map(cart, CartDTO.class))

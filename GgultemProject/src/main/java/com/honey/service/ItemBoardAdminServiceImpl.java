@@ -40,14 +40,14 @@ public class ItemBoardAdminServiceImpl implements ItemBoardAdminService {
 
 	@Override
 	public ItemBoardAdminDTO get(Long id) {
-		// 1. 데이터 조회 (Member까지 한 번에 가져오도록 fetch join된 repository 메서드면 더 좋습니다)
+		// 데이터 조회
 		ItemBoard itemBoard = itemBoardAdminRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("해당 상품을 찾을 수 없습니다."));
 
-		// 2. 기본 변환
+		// 기본 변환
 		ItemBoardAdminDTO dto = modelMapper.map(itemBoard, ItemBoardAdminDTO.class);
 
-		// 3. 연관된 Member 정보 수동 세팅 (매핑이 꼬일 수 있으므로 직접 넣어주는 게 안전합니다)
+		// 연관된 Member 정보 수동 세팅
 		if (itemBoard.getMember() != null) {
 			Member m = itemBoard.getMember();
 			dto.setEmail(m.getEmail());
@@ -55,7 +55,7 @@ public class ItemBoardAdminServiceImpl implements ItemBoardAdminService {
 			dto.setPhone(m.getPhone());
 		}
 
-		// 4. 이미지 처리 (작성하신 코드 유지)
+		// 이미지 처리
 		if (itemBoard.getItemList() != null) {
 			List<String> fileNameList = itemBoard.getItemList().stream().map(itemImage -> itemImage.getFileName())
 					.collect(Collectors.toList());
@@ -96,12 +96,12 @@ public class ItemBoardAdminServiceImpl implements ItemBoardAdminService {
 	@Override
 	public PageResponseDTO<ItemBoardAdminDTO> list(ItemBoardSearchDTO searchDTO) {
 
-		// 1. 페이지네이션 설정
+		// 페이지네이션 설정
 		Pageable pageable = PageRequest.of(searchDTO.getPage() - 1, searchDTO.getSize(), Sort.by("id").descending());
 
 		Page<ItemBoard> result;
 
-		// 2. 검색 조건에 따른 데이터 조회
+		// 검색 조건으로 데이터 조회
 		if (searchDTO.getKeyword() != null && !searchDTO.getKeyword().isEmpty()) {
 			result = itemBoardAdminRepository.searchByCondition(searchDTO.getSearchType(), searchDTO.getKeyword(), searchDTO.getEnabled(),
 					pageable);
@@ -109,20 +109,15 @@ public class ItemBoardAdminServiceImpl implements ItemBoardAdminService {
 			result = itemBoardAdminRepository.findAllList(searchDTO.getEnabled(), pageable);
 		}
 
-		// 3. DTO 변환 (중요: Member 정보 수동 매핑)
+		// DTO 변환
 		List<ItemBoardAdminDTO> dtoList = result.getContent().stream().map(itemBoard -> {
-			// 기본 매핑
 			ItemBoardAdminDTO dto = modelMapper.map(itemBoard, ItemBoardAdminDTO.class);
 			
 			dto.setStatus(itemBoard.getStatus());
 
-			// Member 정보 수동 세팅 (화면에서 item.member.nickname 등을 쓸 수 있게)
+			// Member 정보 세팅
 			if (itemBoard.getMember() != null) {
-				// DTO에 Member 객체 자체가 있다면 그대로 세팅
 				dto.setNickname(itemBoard.getMember().getNickname());
-
-				// 혹은 DTO에 nickname 필드가 따로 있다면 아래처럼 세팅
-				// dto.setNickname(itemBoard.getMember().getNickname());
 			}
 
 			return dto;

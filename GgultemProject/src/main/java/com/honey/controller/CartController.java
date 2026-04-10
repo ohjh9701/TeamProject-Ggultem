@@ -56,7 +56,6 @@ public class CartController {
         
         log.info("별표 해제 요청 - 상품번호: {}, 이메일: {}", itemId, email);
         
-        // 서비스에 이 기능을 만들어야 합니다.
         cartService.removeByItemIdAndEmail(itemId, email); 
         
         return Map.of("RESULT", "SUCCESS");

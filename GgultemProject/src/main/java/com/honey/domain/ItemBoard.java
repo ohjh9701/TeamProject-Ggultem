@@ -36,7 +36,7 @@ public class ItemBoard extends BaseTimeEntity {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "MEMBER_EMAIL") // 실제 DB 테이블의 FK 컬럼명을 지정
+	@JoinColumn(name = "MEMBER_EMAIL")
 	private Member member;
 
 	@Column(nullable = false)
@@ -117,7 +117,6 @@ public class ItemBoard extends BaseTimeEntity {
 	}
 
 	public void addImage(ItemBoardImage image) {
-		// ModelMapper 등으로 인해 itemList가 null이 된 경우를 대비해 직접 초기화
 		if (this.itemList == null) {
 			this.itemList = new ArrayList<>();
 		}

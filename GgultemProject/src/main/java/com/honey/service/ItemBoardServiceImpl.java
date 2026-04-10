@@ -95,15 +95,14 @@ public class ItemBoardServiceImpl implements ItemBoardService {
 	    Pageable pageable = PageRequest.of(searchDTO.getPage() - 1, searchDTO.getSize(),
 	            Sort.by("regDate").descending());
 
-	    // 기본값 설정 로직 (기존과 동일)
+	    // 기본값 설정 로직
 	    String searchType = (searchDTO.getSearchType() == null || searchDTO.getSearchType().isEmpty()) ? "all" : searchDTO.getSearchType();
 	    String keyword = (searchDTO.getKeyword() == null) ? "" : searchDTO.getKeyword();
 	    String status = (searchDTO.getStatus() == null || searchDTO.getStatus().isEmpty()) ? "all" : searchDTO.getStatus();
 	    String category = (searchDTO.getCategory() == null || searchDTO.getCategory().isEmpty()) ? "all" : searchDTO.getCategory();
 	    String location = (searchDTO.getLocation() == null || searchDTO.getLocation().isEmpty()) ? "all" : searchDTO.getLocation();
 	    
-	    // ★ 주의: 검색 조건의 email과 로그인한 사용자의 email을 구분해야 할 수 있지만, 
-	    // 여기서는 searchDTO.getEmail()을 로그인한 사용자의 이메일로 간주합니다.
+	    // 로그인한 사용자의 email을 구분해야 할 수 있지만, 
 	    String currentUserEmail = searchDTO.getEmail(); 
 
 	    Page<ItemBoard> result = itemBoardRepository.searchWithFilter(searchType, keyword, status, category, location, "all", pageable);
@@ -111,14 +110,13 @@ public class ItemBoardServiceImpl implements ItemBoardService {
 	    List<ItemBoardDTO> dtoList = result.getContent().stream().map(itemBoard -> {
 	        ItemBoardDTO dto = modelMapper.map(itemBoard, ItemBoardDTO.class);
 
-	        // 1. 이미지 처리 (기존 로직)
+	        // 1. 이미지 처리
 	        List<String> fileNameList = itemBoard.getItemList().stream().map(itemImage -> itemImage.getFileName()).collect(Collectors.toList());
 	        dto.setUploadFileNames(fileNameList.isEmpty() ? List.of("default.jpg") : fileNameList);
 
-	        // 2. ★ 별표 유지 핵심 로직 추가 ★
-	        // 현재 로그인한 이메일이 있고, 장바구니 레파지토리에서 해당 아이템과 이메일로 데이터가 존재하는지 확인
+	        // 2. 별표 유지 로직
+	        // 로그인한 회원 이메일로 장바구니 레파지토리에서 상품과 이메일로 데이터가 존재하는지 확인
 	        if (currentUserEmail != null && !currentUserEmail.equals("all") && !currentUserEmail.isEmpty()) {
-	            // CartRepository에 이 메서드가 있어야 합니다 (아래 2번 참고)
 	            boolean isExist = cartRepository.existsByItemBoardIdAndMemberEmail(itemBoard.getId(), currentUserEmail);
 	            dto.setFavorite(isExist); 
 	        } else {

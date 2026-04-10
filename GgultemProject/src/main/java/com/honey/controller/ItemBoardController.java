@@ -40,13 +40,10 @@ public class ItemBoardController {
 	@PostMapping("/")
 	public Map<String, Long> register(ItemBoardDTO itemBoardDTO) {
 
-		// 1. 포스트맨에서 보낸 파일이 서버에 "진짜로" 도착했는지 확인
 		List<MultipartFile> files = itemBoardDTO.getFiles();
 
-		// 2. 파일 유틸이 일을 제대로 했는지 확인
 		List<String> uploadFileNames = fileUtil.saveFiles(files);
 
-		// 3. DTO에 제대로 세팅했는지 확인
 		itemBoardDTO.setUploadFileNames(uploadFileNames);
 
 		Long id = itemBoardService.register(itemBoardDTO);

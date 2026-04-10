@@ -38,10 +38,8 @@ public class ItemBoardAdminController {
 	public Map<String, Long> register(ItemBoardDTO dto) {
 		List<MultipartFile> files = dto.getFiles();
 
-		// 2. 파일 유틸이 일을 제대로 했는지 확인
 		List<String> uploadFileNames = fileUtil.saveFiles(files);
 
-		// 3. DTO에 제대로 세팅했는지 확인
 		dto.setUploadFileNames(uploadFileNames);
 		Long id = service.register(dto);
 		return Map.of("id", id);

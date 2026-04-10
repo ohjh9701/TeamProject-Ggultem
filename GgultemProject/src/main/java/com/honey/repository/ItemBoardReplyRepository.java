@@ -12,7 +12,7 @@ public interface ItemBoardReplyRepository extends JpaRepository<ItemBoardReply, 
 
 	// 관리자용 동적 쿼리 (JPQL 방식)
 	@Query("SELECT r FROM ItemBoardReply r " + "JOIN FETCH r.itemBoard i " + "JOIN FETCH r.member m "
-			+ "WHERE (:enabled IS NULL OR r.enabled = :enabled) " + // enabled가 null이면 전체, 아니면 필터
+			+ "WHERE (:enabled IS NULL OR r.enabled = :enabled) " + 
 			"AND (:keyword IS NULL OR " + "     (:searchType = 'content' AND r.content LIKE %:keyword%) OR "
 			+ "     (:searchType = 'writer' AND m.nickname LIKE %:keyword%) OR "
 			+ "     (:searchType = 'itemTitle' AND i.title LIKE %:keyword%) OR "
