@@ -55,11 +55,9 @@ public class NoticeServiceImpl implements NoticeService {
 		List<String> fileNameList = notice.getNoticeImage().stream().map(image -> image.getFileName())
 				.collect(Collectors.toList());
 
-		// 4. 추출한 파일명 리스트를 DTO에 세팅 (이미지가 없으면 기본 이미지 제공)
 		if (fileNameList != null && !fileNameList.isEmpty()) {
 			noticeDTO.setUploadFileNames(fileNameList);
 		} else {
-			// 공지사항에 이미지가 없을 경우 기본 이미지(예: no-image.jpg) 설정
 			noticeDTO.setUploadFileNames(List.of());
 		}
 		
@@ -85,7 +83,7 @@ public class NoticeServiceImpl implements NoticeService {
 	            .title(noticeDTO.getTitle())
 	            .content(noticeDTO.getContent())
 	            .viewCount(0)
-	            .member(member) // 가짜 객체지만 FK 저장에는 충분!
+	            .member(member) // 가짜 객체
 	            .enabled(1)     // 활성화 상태로 등록
 	            .isPinned(noticeDTO.getIsPinned()) // 상단고정기능
 	            .build();
@@ -146,7 +144,7 @@ public class NoticeServiceImpl implements NoticeService {
 		Notice notice = noticeRepository.findById(noticeId).orElseThrow();
 		notice.changeStatus(0); // 논리 삭제 (Member와 동일)
 
-		// 2. 기존 이미지 파일들 삭제 (CustomFileUtil 활용)
+		// 2. 기존 이미지 파일들 삭제 (공용기능인 CustomFileUtil 활용)
 		List<String> oldFileNames = notice.getNoticeImage().stream().map(image -> image.getFileName())
 				.collect(Collectors.toList());
 
@@ -164,7 +162,7 @@ public class NoticeServiceImpl implements NoticeService {
 	// 
 
 	@Override
-	public PageResponseDTO<NoticeDTO> list(SearchDTO searchDTO) { // 파라미터를 SearchDTO로 변경
+	public PageResponseDTO<NoticeDTO> list(SearchDTO searchDTO) {
 
 		// 1. 페이징 및 정렬 설정
 		Pageable pageable = PageRequest.of(
@@ -196,7 +194,7 @@ public class NoticeServiceImpl implements NoticeService {
 			// 이미지 파일명 리스트 세팅
 			List<String> fileNames = notice.getNoticeImage().stream().map(img -> img.getFileName()).toList();
 
-			// 이미지 없을 때의 기본 처리 (기존 코드의 default.jpg 로직 유지 가능)
+			// 이미지 없을 때의 기본 처리
 			if (fileNames.isEmpty()) {
 				dto.setUploadFileNames(List.of());
 			} else {

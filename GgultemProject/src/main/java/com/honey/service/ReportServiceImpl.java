@@ -50,8 +50,6 @@ public class ReportServiceImpl implements ReportService {
 //        Member reporter = memberRepository.findById(reportDTO.getMemberNo())
 //                .orElseThrow(() -> new IllegalArgumentException("신고자를 찾을 수 없습니다."));
 
-		// 🛠 수정된 부분: builder로 가짜를 만드는 대신, DB에서 실제 존재하는 멤버를 찾습니다.
-		// memberRepository의 ID가 이메일이라면 findById를, 아니라면 findByEmail(별도 생성 필요)을 사용하세요.
 		Member member = memberRepository.findById(reportDTO.getMemberEmail())
 				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다: " + reportDTO.getMemberEmail()));
 
@@ -65,7 +63,6 @@ public class ReportServiceImpl implements ReportService {
 				.build();
 
 		// 3. 이미지 파일 이름 처리
-		// ReportDTO의 uploadFileNames 리스트를 순회하며 엔티티에 추가합니다.
 		List<String> uploadFileNames = reportDTO.getUploadFileNames();
 
 		if (uploadFileNames != null && !uploadFileNames.isEmpty()) {

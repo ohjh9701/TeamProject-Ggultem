@@ -46,7 +46,7 @@ public class Notice extends BaseTimeEntity {
     @Column(columnDefinition = "CLOB")
     private String content;
 
-    // Member 엔티티의 'member_email' 컬럼을 참조하는 외래키 설정
+    // Member 엔티티의 'member_email' 컬럼을 참조하는 외래키 설정.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_email", nullable = false)
     private Member member;
@@ -64,7 +64,7 @@ public class Notice extends BaseTimeEntity {
 	private List<NoticeImage> noticeImage = new ArrayList<>(); 
     
     @Column(name = "IS_PINNED", nullable = false)
-    @Builder.Default  // Builder 사용 시 기본값 0이 들어가도록 설정
+    @Builder.Default  // Builder 사용 시 기본값으로 0이 들어가도록 설정
     private int isPinned = 0;
     // 기본 0, 상단고정시 1
 
@@ -116,6 +116,3 @@ public class Notice extends BaseTimeEntity {
 }
 
 
-
-
-//확인용 주석

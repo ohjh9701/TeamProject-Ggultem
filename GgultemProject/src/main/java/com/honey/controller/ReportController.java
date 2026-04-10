@@ -37,7 +37,7 @@ public class ReportController {
         return Map.of("REPORT_ID", reportId);
     }
 
-    @GetMapping("/view/{fileName}") // ✅ 추가
+    @GetMapping("/view/{fileName}")
     public ResponseEntity<Resource> viewFile(@PathVariable String fileName) {
         return fileUtil.getFile(fileName);
     }

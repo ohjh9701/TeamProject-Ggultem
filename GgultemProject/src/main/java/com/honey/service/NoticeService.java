@@ -23,7 +23,7 @@ public interface NoticeService {
     // 공지사항 수정
     public void modify(NoticeDTO noticeDTO);
 
-    // 공지사항 삭제 (논리 삭제 또는 물리 삭제)
+    // 공지사항 삭제 (softDelete로 통일하는 거 잊지 말기)
     public void remove(Long noticeId);
 
     // 공지사항 이미지 관련 업데이트 (필요시)

@@ -15,8 +15,8 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     @Query("select n from Notice n where n.enabled = 1")
     Page<Notice> findAllByEnabled(Pageable pageable);
 
-    // 2. 검색 기능 이식
-    @EntityGraph(attributePaths = {"noticeImage"}) // BoardImage -> noticeImage로 변경
+    // 2. 검색 기능 추가 보류
+    @EntityGraph(attributePaths = {"noticeImage"})
     @Query("SELECT n FROM Notice n WHERE " +
            "(n.enabled = 1) AND (" + // 삭제되지 않은 것들 중에서 검색
            "( (:searchType = 'title' AND n.title LIKE %:keyword%) OR " +
