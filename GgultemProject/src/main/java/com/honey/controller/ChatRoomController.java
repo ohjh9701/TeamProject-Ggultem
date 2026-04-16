@@ -62,16 +62,9 @@ public class ChatRoomController {
 	            .build();
 	}
 	
-	@PutMapping("/{roomId}")
-	public Map<String, String> modify(@PathVariable(name = "roomId") Long roomId, @RequestBody ChatRoomDTO chatRoomDTO) {
-		chatRoomDTO.setRoomId(roomId);
-		service.modify(chatRoomDTO);
-		return Map.of("RESULT", "SUCCESS");
-	}
-	
-	@DeleteMapping("/remove/{roomId}")
-	public Map<String, String> remove(@PathVariable(name = "roomId") Long roomId) {
-		service.remove(roomId);
+	@PutMapping("/remove/{roomId}")
+	public Map<String, String> remove(@PathVariable(name = "roomId") Long roomId,@RequestParam("userId") String userId) {
+		service.remove(roomId, userId);
 		return Map.of("RESULT", "SUCCESS");
 	}
 	

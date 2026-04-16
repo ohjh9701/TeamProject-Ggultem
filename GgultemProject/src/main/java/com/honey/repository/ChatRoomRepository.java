@@ -31,11 +31,14 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 	
 	
 
- // ✅ 내가 참여 중(판매자 OR 구매자)이고, 삭제되지 않은(enabled=1) 채팅방 조회
-    @Query("SELECT r FROM ChatRoom r " +
-           "WHERE (r.sellerId = :userId OR r.buyerId = :userId) " +
-           "AND r.enabled = 1 " +
-           "ORDER BY r.regDate DESC") // 기본적으로 생성일 순 정렬 (나중에 메시지 순으로 재정렬)
+	@Query("SELECT r FROM ChatRoom r " +
+		       "WHERE ( " +
+		       "  (r.sellerId = :userId AND r.sellerLeft = false) " + // 내가 판매자고, 나가지 않았을 때
+		       "  OR " +
+		       "  (r.buyerId = :userId AND r.buyerLeft = false) " +  // 내가 구매자고, 나가지 않았을 때
+		       ") " +
+		       "AND r.enabled = 1 " + // 방 자체가 삭제(비활성화)되지 않았을 때
+		       "ORDER BY r.regDate DESC")
     List<ChatRoom> findActiveRoomsByUserId(@Param("userId") String userId);
 
 }

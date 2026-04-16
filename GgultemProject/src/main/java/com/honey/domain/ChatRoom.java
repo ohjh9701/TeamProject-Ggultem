@@ -41,7 +41,9 @@ public class ChatRoom extends BaseTimeEntity {
     private String sellerId; // 판매자 닉네임/ID
     private String buyerId;  // 구매자 닉네임/ID
 	private String roomName;
-	private Integer enabled; // 1:활성화, 0:삭제
+	private Integer enabled; //논리 삭제 -> 판매자/구매자별 삭제 표시
+	private Boolean buyerLeft; //판매자 채팅방 나가기
+	private Boolean sellerLeft; //구매자 채팅방 나가기
 	private LocalDateTime dtdDate;
 	
 	@ElementCollection(fetch = FetchType.LAZY)
@@ -58,6 +60,14 @@ public class ChatRoom extends BaseTimeEntity {
 	
 	public void changeRoomName(String roomName) {
 		this.roomName = roomName;
+	}
+	
+	public void changeRoomBuyerLeft(boolean buyerLeft) {
+		this.buyerLeft = buyerLeft;
+	}
+	
+	public void changeRoomSellerLeft(boolean sellerLeft) {
+		this.sellerLeft = sellerLeft;
 	}
 	
 	

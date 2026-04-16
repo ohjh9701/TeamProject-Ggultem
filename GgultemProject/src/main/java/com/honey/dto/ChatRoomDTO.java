@@ -20,6 +20,8 @@ public class ChatRoomDTO {
 	private String buyerId;
 	private String sellerId;
 	private Integer enabled;
+	private Boolean buyerLeft;
+	private Boolean sellerLeft;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime regDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

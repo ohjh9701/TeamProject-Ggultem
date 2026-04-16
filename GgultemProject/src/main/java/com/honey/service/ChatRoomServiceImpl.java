@@ -6,10 +6,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.honey.domain.ChatMessages;
@@ -91,21 +87,20 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 	}
 	
 	@Override
-	public void modify(ChatRoomDTO chatRoomDTO) {
-		Optional<ChatRoom> result = repository.findById(chatRoomDTO.getRoomId());
-		ChatRoom chatRoom = result.orElseThrow();
-
-		chatRoom.changeRoomName(chatRoomDTO.getRoomName());
-
-	    repository.save(chatRoom);
-	}
-	
-	@Override
-	public void remove(Long roomId) {
+	public void remove(Long roomId, String userId) {
 		Optional<ChatRoom> result = repository.findById(roomId);
 		ChatRoom chatRoom = result.orElseThrow();
 		
-		chatRoom.changeEnabled(0);
+		if(chatRoom.getBuyerId().equals(userId)) {
+			chatRoom.changeRoomBuyerLeft(true);
+		} else {
+			chatRoom.changeRoomSellerLeft(true);
+		}
+		
+		// 두 사람 다 나갔다면 방을 비활성화(논리 삭제)
+	    if (chatRoom.getBuyerLeft() && chatRoom.getSellerLeft()) {
+	        chatRoom.changeEnabled(0);
+	    }
 
 		repository.save(chatRoom);
 	}
